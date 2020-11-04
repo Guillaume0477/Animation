@@ -149,6 +149,9 @@ void scene::draw_scene()
 
     mesh_cylinder_opengl.draw();
 
+    skeleton_geometry const sk_cylinder_global = local_to_global(sk_cylinder_bind_pose,sk_cylinder_parent_id);
+    std::vector<vec3> const sk_cylinder_bones = extract_bones(sk_cylinder_global,sk_cylinder_parent_id);
+    draw_skeleton(sk_cylinder_bones);
 
 }
 

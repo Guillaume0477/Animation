@@ -222,6 +222,8 @@ std::vector<vec3> extract_bones(skeleton_geometry const& skeleton,skeleton_paren
         int const parent = parent_id[k];
 
         //TO DO: completez la structure position avec la position des extermitees des os.
+        positions.push_back(skeleton[parent].position);
+        positions.push_back(skeleton[k].position);
 
     }
 
