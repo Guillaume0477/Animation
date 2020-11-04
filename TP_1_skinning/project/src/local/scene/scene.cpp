@@ -39,6 +39,7 @@ static cpe::mesh build_ground(float const L,float const h)
 }
 
 
+
 static cpe::mesh_skinned build_cylinder(float const R,float const H, int const nbT, int const nbH) //rayon hauteur
 {
     mesh_skinned m;
@@ -72,6 +73,22 @@ static cpe::mesh_skinned build_cylinder(float const R,float const H, int const n
 }
 
 
+static void Init_cylinder_skeleton(cpe::skeleton_parent_id &sk_cylinder_parent_id,cpe::skeleton_geometry &sk_cylinder_bind_pose ,float length) //quaternion q
+{
+    sk_cylinder_parent_id.push_back(-1);
+    sk_cylinder_parent_id.push_back(0);
+    sk_cylinder_parent_id.push_back(1);
+
+    skeleton_joint j00 = skeleton_joint(vec3(0,0,0),quaternion(0,0,0,1));
+    skeleton_joint j11 = skeleton_joint(vec3(0,0,length/2),quaternion(0,0,0,1));
+    skeleton_joint j22 = skeleton_joint(vec3(0,0,length/2),quaternion(0,0,0,1));
+
+    sk_cylinder_bind_pose.push_back(j00);
+    sk_cylinder_bind_pose.push_back(j11);
+    sk_cylinder_bind_pose.push_back(j22);
+
+}
+
 
 
 void scene::load_scene()
@@ -96,12 +113,21 @@ void scene::load_scene()
     mesh_ground.fill_empty_field_by_default();
     mesh_ground_opengl.fill_vbo(mesh_ground);
 
+
     //*****************************************//
     // Build cylinder
     //*****************************************//
     mesh_cylinder = build_cylinder(radius, length, 40,40);
     mesh_cylinder.fill_empty_field_by_default();
     mesh_cylinder_opengl.fill_vbo(mesh_cylinder);
+
+    Init_cylinder_skeleton(sk_cylinder_parent_id, sk_cylinder_bind_pose , length) ;
+
+
+
+    
+
+
 
 
 }
