@@ -39,7 +39,15 @@ static cpe::mesh build_ground(float const L,float const h)
 }
 
 
+static cpe::mesh build_cylinder(float const R,float const h) //rayon hauteur
+{
+    mesh m;
 
+
+    m.fill_color(vec3(0.8,0.9,0.8));
+
+    return m;
+}
 
 
 
@@ -65,6 +73,12 @@ void scene::load_scene()
     mesh_ground.fill_empty_field_by_default();
     mesh_ground_opengl.fill_vbo(mesh_ground);
 
+    //*****************************************//
+    // Build cylinder
+    //*****************************************//
+    mesh_cylinder = 
+    mesh_cylinder.fill_empty_field_by_default();
+    mesh_cylinder_opengl.fill_vbo(mesh_cylinder);
 
 
 }
