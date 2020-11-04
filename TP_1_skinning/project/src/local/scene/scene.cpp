@@ -123,6 +123,8 @@ void scene::load_scene()
 
     Init_cylinder_skeleton(sk_cylinder_parent_id, sk_cylinder_bind_pose , length) ;
 
+    //Test to check if the function works
+    // cpe::skeleton_geometry glob = local_to_global(sk_cylinder_bind_pose, sk_cylinder_parent_id);
 
 
     

@@ -162,6 +162,23 @@ skeleton_geometry local_to_global(skeleton_geometry const& sk_local,skeleton_par
         return sk_global;
 
     //TO Do: Completez la structure sk_global en exprimant les reperes dans les coordonnees globales.
+    for (int j = 0; j < N ; j++){
+        int parent = parent_id[j];
+        if (parent != -1){
+
+            vec3 tj = sk_global[parent].orientation * sk_local[j].position + sk_global[parent].position;
+            cpe::quaternion qj = sk_global[parent].orientation * sk_local[parent].orientation;
+
+            sk_global.push_back(cpe::skeleton_joint(tj, qj));            
+
+        } else {
+            sk_global.push_back(cpe::skeleton_joint(sk_local[j].position, sk_local[j].orientation));
+        }
+
+        // std::cout << sk_global[j].position.x() << ' ' << sk_global[j].position.y() << ' ' << sk_global[j].position.z() << std::endl;
+    }
+
+    
 
     return sk_global;
 
