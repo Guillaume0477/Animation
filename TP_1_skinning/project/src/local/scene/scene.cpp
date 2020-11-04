@@ -39,10 +39,32 @@ static cpe::mesh build_ground(float const L,float const h)
 }
 
 
-static cpe::mesh build_cylinder(float const R,float const h) //rayon hauteur
+static cpe::mesh_skinned build_cylinder(float const R,float const H, int const nbT, int const nbH) //rayon hauteur
 {
-    mesh m;
+    mesh_skinned m;
 
+    float incT = 2*M_PI / nbT;
+    float incH = H / nbH;
+
+    //Create vertice of the cylinder
+    for (int k = 0; k < nbH; k++){
+        float h = k*incH;
+        for (int i = 0; i < nbT ; i++){
+            float theta = i*incT;
+            m.add_vertex(vec3(R*cos(theta), R*sin(theta), h));
+        }
+    }
+    //Creates triangles of the cylinder
+    for (int i = 0; i < nbH-1; i++){
+        for (int j = 0; j < nbT-1; j++){
+            
+            m.add_triangle_index({i*nbT + j, i*nbT + j+1, (i+1)*nbT + j + 1});
+            m.add_triangle_index({i*nbT + j , (i+1)*nbT + j+1, (i+1)*nbT + j});
+        }
+
+        m.add_triangle_index({(i+1)*nbT-1, i*nbT, (i+1)*nbT});
+        m.add_triangle_index({(i+1)*nbT-1, (i+1)*nbT, (i+2)*nbT-1});
+    }
 
     m.fill_color(vec3(0.8,0.9,0.8));
 
@@ -55,7 +77,8 @@ static cpe::mesh build_cylinder(float const R,float const h) //rayon hauteur
 void scene::load_scene()
 {
 
-
+    float const length = 50.0f;
+    float const radius = 4.0f;
     //*****************************************//
     // Preload default structure               //
     //*****************************************//
@@ -76,7 +99,7 @@ void scene::load_scene()
     //*****************************************//
     // Build cylinder
     //*****************************************//
-    mesh_cylinder = 
+    mesh_cylinder = build_cylinder(radius, length, 40,40);
     mesh_cylinder.fill_empty_field_by_default();
     mesh_cylinder_opengl.fill_vbo(mesh_cylinder);
 
@@ -95,6 +118,8 @@ void scene::draw_scene()
     setup_shader_mesh(shader_mesh);
 
     mesh_ground_opengl.draw();
+
+    mesh_cylinder_opengl.draw();
 
 
 }
