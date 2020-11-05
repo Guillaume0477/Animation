@@ -165,9 +165,9 @@ skeleton_geometry local_to_global(skeleton_geometry const& sk_local,skeleton_par
     for (int j = 0; j < N ; j++){
         int parent = parent_id[j];
         if (parent != -1){
-
+            std::cout << "pilou" << std::endl; 
             vec3 tj = sk_global[parent].orientation * sk_local[j].position + sk_global[parent].position;
-            cpe::quaternion qj = sk_global[parent].orientation * sk_local[parent].orientation;
+            cpe::quaternion qj = sk_global[parent].orientation * sk_local[j].orientation;
 
             sk_global.push_back(cpe::skeleton_joint(tj, qj));            
 
@@ -175,7 +175,7 @@ skeleton_geometry local_to_global(skeleton_geometry const& sk_local,skeleton_par
             sk_global.push_back(cpe::skeleton_joint(sk_local[j].position, sk_local[j].orientation));
         }
 
-        // std::cout << sk_global[j].position.x() << ' ' << sk_global[j].position.y() << ' ' << sk_global[j].position.z() << std::endl;
+        std::cout << sk_global[j].position.x() << ' ' << sk_global[j].position.y() << ' ' << sk_global[j].position.z() << std::endl;
     }
 
     
