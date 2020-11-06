@@ -89,22 +89,25 @@ static void Init_cylinder_skeleton(cpe::skeleton_parent_id &sk_cylinder_parent_i
 
 }
 
-static void Init_cylinder_animation(cpe::skeleton_parent_id &sk_cylinder_parent_id,cpe::skeleton_geometry &sk_cylinder_bind_pose ,cpe::skeleton_animation sk_monster_animation ,float length) //quaternion q
+static void Init_cylinder_animation(cpe::skeleton_parent_id &sk_cylinder_parent_id,cpe::skeleton_geometry &sk_cylinder_bind_pose ,cpe::skeleton_animation &sk_cylinder_animation ,float length) //quaternion q
 {
 
     //for 0 to 90 pas 30
     //new ske_geo
 
-    sk_monster_animation.push_back(sk_cylinder_bind_pose);
+    sk_cylinder_animation.push_back(sk_cylinder_bind_pose);
     skeleton_joint j_30 = skeleton_joint(vec3(0,0,length/2),quaternion(0,0,0.524,1));
-    sk_cylinder_bind_pose[2] = j_30;
-    sk_monster_animation.push_back(sk_cylinder_bind_pose);
+    j_30.orientation.set_axis_angle(vec3(1,0,0),0.524);
+    sk_cylinder_bind_pose[1] = j_30;
+    sk_cylinder_animation.push_back(sk_cylinder_bind_pose);
     skeleton_joint j_60 = skeleton_joint(vec3(0,0,length/2),quaternion(0,0,1.047,1));
-    sk_cylinder_bind_pose[2] = j_60;
-    sk_monster_animation.push_back(sk_cylinder_bind_pose);
+    j_60.orientation.set_axis_angle(vec3(1,0,0),1.047);
+    sk_cylinder_bind_pose[1] = j_60;
+    sk_cylinder_animation.push_back(sk_cylinder_bind_pose);
     skeleton_joint j_90 = skeleton_joint(vec3(0,0,length/2),quaternion(0,0,1.71,1));
-    sk_cylinder_bind_pose[2] = j_90;
-    sk_monster_animation.push_back(sk_cylinder_bind_pose);
+    j_90.orientation.set_axis_angle(vec3(1,0,0),1.71);
+    sk_cylinder_bind_pose[1] = j_90;
+    sk_cylinder_animation.push_back(sk_cylinder_bind_pose);
 
 }
 
@@ -141,9 +144,10 @@ void scene::load_scene()
     Init_cylinder_skeleton(sk_cylinder_parent_id, sk_cylinder_bind_pose , length) ;
 
     //Test to check if the function works
+
     cpe::skeleton_geometry glob = local_to_global(sk_cylinder_bind_pose, sk_cylinder_parent_id);
 
-    Init_cylinder_animation(sk_cylinder_parent_id, sk_cylinder_bind_pose, sk_monster_animation, length);
+    Init_cylinder_animation(sk_cylinder_parent_id, sk_cylinder_bind_pose, sk_cylinder_animation, length);
     
 
 
