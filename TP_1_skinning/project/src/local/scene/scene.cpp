@@ -216,7 +216,8 @@ void scene::draw_scene()
 
     float alpha = float(time.elapsed()) / 1000.0;
 
-    skeleton_geometry sk_toUse = interpolated(sk_cylinder_animation[index], sk_cylinder_animation[next], alpha);
+    skeleton_geometry sk_toUse = interpolated(sk_cylinder_animation[index], sk_cylinder_animation[next], alpha); // sk_cylinder_animation[index]; //
+
 
     skeleton_geometry const sk_cylinder_global = local_to_global(sk_toUse,sk_cylinder_parent_id);
     std::vector<vec3> const sk_cylinder_bones = extract_bones(sk_cylinder_global,sk_cylinder_parent_id);
