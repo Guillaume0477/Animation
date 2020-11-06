@@ -52,8 +52,23 @@ static cpe::mesh_skinned build_cylinder(float const R,float const H, int const n
     for (int k = 0; k < nbH; k++){
         float h = k*incH;
         for (int i = 0; i < nbT ; i++){
+            vertex_weight_parameter vwp;
+            skinning_weight sw;
+
             float theta = i*incT;
             m.add_vertex(vec3(R*cos(theta), R*sin(theta), h));
+
+            if (h>H/2){
+                sw.joint_id = 1;
+                sw.weight = 1;
+                vwp[0] = sw; 
+                m.add_vertex_weight(vwp);
+            } else {
+                sw.joint_id = 0;
+                sw.weight = 1;
+                vwp[0] = sw;
+                m.add_vertex_weight(vwp);
+            }
         }
     }
     //Creates triangles of the cylinder
@@ -109,6 +124,7 @@ static void Init_cylinder_animation(cpe::skeleton_parent_id &sk_cylinder_parent_
     j_90.orientation.set_axis_angle(vec3(1,0,0),M_PI/2);
     sk_cylinder_bind_pose[1] = j_90;
     sk_cylinder_animation.push_back(sk_cylinder_bind_pose);
+
 
 }
 

@@ -165,7 +165,7 @@ skeleton_geometry local_to_global(skeleton_geometry const& sk_local,skeleton_par
     for (int j = 0; j < N ; j++){
         int parent = parent_id[j];
         if (parent != -1){
-            std::cout << "pilou" << std::endl; 
+
             vec3 tj = sk_global[parent].orientation * sk_local[j].position + sk_global[parent].position;
             cpe::quaternion qj = sk_global[parent].orientation * sk_local[j].orientation;
 
@@ -191,6 +191,7 @@ skeleton_geometry inversed(skeleton_geometry const& skeleton)
     for(skeleton_joint const& joint : skeleton)
     {
         //TO DO: calculer l'inverse de chaque repere
+        sk_inversed.push_back(skeleton_joint(-joint.position, conjugated(joint.orientation)));
     }
 
     return sk_inversed;
@@ -205,6 +206,11 @@ skeleton_geometry multiply(skeleton_geometry const& skeleton_1,skeleton_geometry
     for(int k=0 ; k<N_joint ; ++k)
     {
         //TO DO: calculer le produit pour chaque joint entre celui du squelette 1 et celui du squelette 2
+        vec3 t = skeleton_1[k].orientation * skeleton_2[k].position + skeleton_1[k].position;
+        cpe::quaternion q = skeleton_1[k].orientation * skeleton_2[k].orientation;
+
+        sk.push_back(cpe::skeleton_joint(t, q));
+
 
     }
 
