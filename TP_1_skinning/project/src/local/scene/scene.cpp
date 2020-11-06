@@ -114,6 +114,13 @@ static void Init_cylinder_skeleton(cpe::skeleton_parent_id &sk_cylinder_parent_i
 
 }
 
+static void Init_monster_skeleton(cpe::skeleton_parent_id &sk_monster_parent_id,cpe::skeleton_geometry &sk_monster_bind_pose) //quaternion q
+{
+    sk_monster_parent_id.load("data/Monster.skeleton");
+    sk_monster_bind_pose.load("data/Monster.skeleton");
+}
+
+
 static void Init_cylinder_animation(cpe::skeleton_parent_id &sk_cylinder_parent_id,cpe::skeleton_geometry sk_cylinder_bind_pose ,cpe::skeleton_animation &sk_cylinder_animation ,float length) //quaternion q
 {
 
@@ -168,13 +175,18 @@ void scene::load_scene()
     mesh_cylinder.fill_empty_field_by_default();
     mesh_cylinder_opengl.fill_vbo(mesh_cylinder);
 
-    
+
+    //*****************************************//
+    // Build monster
+    //*****************************************//
     mesh_monster.load("data/Monster.obj");
     mesh_monster.fill_empty_field_by_default();
     mesh_monster_opengl.fill_vbo(mesh_monster);
 
 
     Init_cylinder_skeleton(sk_cylinder_parent_id, sk_cylinder_bind_pose , length) ;
+
+    Init_monster_skeleton(sk_monster_parent_id, sk_monster_bind_pose) ;
 
     //Test to check if the function works
     // cpe::skeleton_geometry glob = local_to_global(sk_cylinder_bind_pose, sk_cylinder_parent_id);
@@ -220,6 +232,12 @@ void scene::draw_scene()
     std::vector<vec3> const sk_cylinder_bones = extract_bones(sk_cylinder_global,sk_cylinder_parent_id);
     draw_skeleton(sk_cylinder_bones);
 
+
+    skeleton_geometry const sk_monster_global = local_to_global(sk_monster_bind_pose,sk_monster_parent_id);
+    std::vector<vec3> const sk_monster_bones = extract_bones(sk_monster_global,sk_monster_parent_id);
+    draw_skeleton(sk_monster_bones);
+
+
     //Here we can draw skeletons as 3D segments
 
     setup_shader_mesh(shader_mesh);
@@ -233,6 +251,7 @@ void scene::draw_scene()
     mesh_cylinder_opengl.update_vbo_vertex(mesh_cylinder);
     mesh_cylinder_opengl.update_vbo_normal(mesh_cylinder);
     mesh_cylinder_opengl.draw();
+
 
 
     glBindTexture(GL_TEXTURE_2D, texture_monster);
