@@ -175,7 +175,6 @@ skeleton_geometry local_to_global(skeleton_geometry const& sk_local,skeleton_par
             sk_global.push_back(cpe::skeleton_joint(sk_local[j].position, sk_local[j].orientation));
         }
 
-        std::cout << sk_global[j].position.x() << ' ' << sk_global[j].position.y() << ' ' << sk_global[j].position.z() << std::endl;
     }
 
     
