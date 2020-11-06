@@ -211,7 +211,6 @@ skeleton_geometry multiply(skeleton_geometry const& skeleton_1,skeleton_geometry
 
         sk.push_back(cpe::skeleton_joint(t, q));
 
-
     }
 
     return sk;
@@ -249,6 +248,13 @@ skeleton_geometry interpolated(skeleton_geometry const& skeleton_1,skeleton_geom
         skeleton_joint const& joint_1 = skeleton_1[k];
         skeleton_joint const& joint_2 = skeleton_2[k];
         //TO DO: completez la methode d'interpolation entre les reperes des joints du squelette 1 et du squelette 2
+
+        vec3 t = joint_1.position * (1-alpha) + joint_2.position * alpha;
+        cpe::quaternion q = slerp(joint_1.orientation, joint_2.orientation, alpha);
+
+        sk.push_back(skeleton_joint(t,q));
+
+
     }
 
     return sk;

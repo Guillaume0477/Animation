@@ -99,6 +99,7 @@ private:
     QTime time;
     int order = 1;
     int index = 0;
+    int next = 1;
 
     void setup_shader_mesh(GLuint shader_id);
     void setup_shader_skeleton(GLuint shader_id);

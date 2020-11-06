@@ -184,7 +184,6 @@ void scene::load_scene()
 
 void scene::draw_scene()
 {
-
     setup_shader_skeleton(shader_skeleton);
 
     if (time.elapsed()>1000){
@@ -201,10 +200,25 @@ void scene::draw_scene()
         }
 
         time.restart();
+
+        if ((order > 0) && (index + 1 < sk_cylinder_animation.size())){
+            next = index + 1;
+        } else if ((order > 0) && (index + 1 >= sk_cylinder_animation.size())){
+            next = index - 1;
+        } else if ((order < 0) && (index - 1 >= 0)){
+            next = index - 1;
+        } else {
+            next = index + 1;
+        }
     }
 
+    
 
-    skeleton_geometry const sk_cylinder_global = local_to_global(sk_cylinder_animation[index],sk_cylinder_parent_id);
+    float alpha = float(time.elapsed()) / 1000.0;
+
+    skeleton_geometry sk_toUse = interpolated(sk_cylinder_animation[index], sk_cylinder_animation[next], alpha);
+
+    skeleton_geometry const sk_cylinder_global = local_to_global(sk_toUse,sk_cylinder_parent_id);
     std::vector<vec3> const sk_cylinder_bones = extract_bones(sk_cylinder_global,sk_cylinder_parent_id);
     draw_skeleton(sk_cylinder_bones);
 
