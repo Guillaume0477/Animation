@@ -187,29 +187,21 @@ void scene::draw_scene()
     setup_shader_skeleton(shader_skeleton);
 
     if (time.elapsed()>1000){
-        if ((order > 0) && (index + 1 < sk_cylinder_animation.size())){
-            index +=1;
-        } else if ((order > 0) && (index + 1 >= sk_cylinder_animation.size())){
+        index = next;
+
+        if ((order > 0) && (next + 1 < sk_cylinder_animation.size())){
+            next +=1;
+        } else if ((order > 0) && (next + 1 >= sk_cylinder_animation.size())){
             order *= -1;
-            index -= 1;
-        } else if ((order < 0) && (index - 1 >= 0)){
-            index -=1;
+            next -= 1;
+        } else if ((order < 0) && (next - 1 >= 0)){
+            next -=1;
         } else {
             order *= -1;
-            index +=1;
+            next +=1;
         }
-
         time.restart();
-
-        if ((order > 0) && (index + 1 < sk_cylinder_animation.size())){
-            next = index + 1;
-        } else if ((order > 0) && (index + 1 >= sk_cylinder_animation.size())){
-            next = index - 1;
-        } else if ((order < 0) && (index - 1 >= 0)){
-            next = index - 1;
-        } else {
-            next = index + 1;
-        }
+        
     }
 
     
