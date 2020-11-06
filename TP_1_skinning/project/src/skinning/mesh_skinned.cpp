@@ -183,7 +183,16 @@ void mesh_skinned::apply_skinning(skeleton_geometry const& skeleton)
     for(int k_vertex=0 ; k_vertex<N_vertex ; ++k_vertex)
     {
         //TO DO: Calculer deformation par skinning
-        //  vertex(k_vertex) = ...
+
+        int const N_joint = vertex_weight_data[k_vertex].size();
+        vec3 modifed_pos = vec3(0.0,0.0,0.0);
+
+        for(int j=0 ; j<N_joint ; ++j)
+        {
+            int j_id = vertex_weight_data[k_vertex][j].joint_id;
+            modifed_pos += vertex_weight_data[k_vertex][j].weight * (( skeleton[j_id].orientation* vertices_original_data[k_vertex]) + skeleton[j_id].position);
+        }
+        vertex(k_vertex) = modifed_pos;
     }
 
 }
