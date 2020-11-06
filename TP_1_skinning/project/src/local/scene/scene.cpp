@@ -114,7 +114,7 @@ static void Init_cylinder_skeleton(cpe::skeleton_parent_id &sk_cylinder_parent_i
 
 }
 
-static void Init_cylinder_animation(cpe::skeleton_parent_id &sk_cylinder_parent_id,cpe::skeleton_geometry &sk_cylinder_bind_pose ,cpe::skeleton_animation &sk_cylinder_animation ,float length) //quaternion q
+static void Init_cylinder_animation(cpe::skeleton_parent_id &sk_cylinder_parent_id,cpe::skeleton_geometry sk_cylinder_bind_pose ,cpe::skeleton_animation &sk_cylinder_animation ,float length) //quaternion q
 {
 
     //for 0 to 90 pas 30
