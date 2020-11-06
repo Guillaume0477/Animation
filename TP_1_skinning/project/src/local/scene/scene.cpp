@@ -167,6 +167,12 @@ void scene::load_scene()
     mesh_cylinder.fill_empty_field_by_default();
     mesh_cylinder_opengl.fill_vbo(mesh_cylinder);
 
+    
+    mesh_monster.load("data/Monster.obj");
+    mesh_monster.fill_empty_field_by_default();
+    mesh_monster_opengl.fill_vbo(mesh_monster);
+
+
     Init_cylinder_skeleton(sk_cylinder_parent_id, sk_cylinder_bind_pose , length) ;
 
     //Test to check if the function works
@@ -226,6 +232,8 @@ void scene::draw_scene()
     mesh_cylinder_opengl.update_vbo_vertex(mesh_cylinder);
     mesh_cylinder_opengl.update_vbo_normal(mesh_cylinder);
     mesh_cylinder_opengl.draw();
+
+    mesh_monster_opengl.draw();
 
 }
 
