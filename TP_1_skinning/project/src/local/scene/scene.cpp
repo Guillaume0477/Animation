@@ -201,14 +201,12 @@ void scene::draw_scene()
             next +=1;
         }
         time.restart();
-        
-    }
 
-    
+    }
 
     float alpha = float(time.elapsed()) / 1000.0;
 
-    skeleton_geometry sk_toUse = interpolated(sk_cylinder_animation[index], sk_cylinder_animation[next], alpha); // sk_cylinder_animation[index]; //
+    skeleton_geometry sk_toUse = interpolated(sk_cylinder_animation[index], sk_cylinder_animation[next], alpha); //sk_cylinder_animation(index, alpha);// sk_cylinder_animation[index]; //
 
 
     skeleton_geometry const sk_cylinder_global = local_to_global(sk_toUse,sk_cylinder_parent_id);
