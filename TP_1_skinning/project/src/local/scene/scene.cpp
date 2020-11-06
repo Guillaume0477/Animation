@@ -146,6 +146,7 @@ void scene::load_scene()
     // Preload default structure               //
     //*****************************************//
     texture_default = load_texture_file("data/white.jpg");
+    texture_monster = load_texture_file("data/Monster.png");
     shader_mesh     = read_shader("shaders/shader_mesh.vert",
                                   "shaders/shader_mesh.frag");           PRINT_OPENGL_ERROR();
     shader_skeleton = read_shader("shaders/shader_skeleton.vert",
@@ -233,6 +234,8 @@ void scene::draw_scene()
     mesh_cylinder_opengl.update_vbo_normal(mesh_cylinder);
     mesh_cylinder_opengl.draw();
 
+
+    glBindTexture(GL_TEXTURE_2D, texture_monster);
     mesh_monster_opengl.draw();
 
 }
