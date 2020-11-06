@@ -96,6 +96,9 @@ private:
     /** The id of the shader to draw skeleton */
     GLuint shader_skeleton;
 
+    QTime time;
+    int order = 1;
+    int index = 0;
 
     void setup_shader_mesh(GLuint shader_id);
     void setup_shader_skeleton(GLuint shader_id);

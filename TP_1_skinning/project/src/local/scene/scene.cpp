@@ -22,6 +22,7 @@
 using namespace cpe;
 
 
+
 static cpe::mesh build_ground(float const L,float const h)
 {
     mesh m;
@@ -79,9 +80,9 @@ static void Init_cylinder_skeleton(cpe::skeleton_parent_id &sk_cylinder_parent_i
     sk_cylinder_parent_id.push_back(0);
     sk_cylinder_parent_id.push_back(1);
 
-    skeleton_joint j00 = skeleton_joint(vec3(0,0,0),quaternion(0,0,0,1));
-    skeleton_joint j11 = skeleton_joint(vec3(0,0,length/2),quaternion(0,0,0,1));
-    skeleton_joint j22 = skeleton_joint(vec3(0,0,length/2),quaternion(0,0,0,1));
+    skeleton_joint j00 = skeleton_joint(vec3(0,0,0),cpe::quaternion(0,0,0,1));
+    skeleton_joint j11 = skeleton_joint(vec3(0,0,length/2),cpe::quaternion(0,0,0,1));
+    skeleton_joint j22 = skeleton_joint(vec3(0,0,length/2),cpe::quaternion(0,0,0,1));
 
     sk_cylinder_bind_pose.push_back(j00);
     sk_cylinder_bind_pose.push_back(j11);
@@ -96,16 +97,16 @@ static void Init_cylinder_animation(cpe::skeleton_parent_id &sk_cylinder_parent_
     //new ske_geo
 
     sk_cylinder_animation.push_back(sk_cylinder_bind_pose);
-    skeleton_joint j_30 = skeleton_joint(vec3(0,0,length/2),quaternion(0,0,0.524,1));
-    j_30.orientation.set_axis_angle(vec3(1,0,0),0.524);
+    skeleton_joint j_30 = skeleton_joint(vec3(0,0,length/2),quaternion(0,0,0,1));
+    j_30.orientation.set_axis_angle(vec3(1,0,0),M_PI/6);
     sk_cylinder_bind_pose[1] = j_30;
     sk_cylinder_animation.push_back(sk_cylinder_bind_pose);
-    skeleton_joint j_60 = skeleton_joint(vec3(0,0,length/2),quaternion(0,0,1.047,1));
-    j_60.orientation.set_axis_angle(vec3(1,0,0),1.047);
+    skeleton_joint j_60 = skeleton_joint(vec3(0,0,length/2),quaternion(0,0,0,1));
+    j_60.orientation.set_axis_angle(vec3(1,0,0),M_PI/3);
     sk_cylinder_bind_pose[1] = j_60;
     sk_cylinder_animation.push_back(sk_cylinder_bind_pose);
-    skeleton_joint j_90 = skeleton_joint(vec3(0,0,length/2),quaternion(0,0,1.71,1));
-    j_90.orientation.set_axis_angle(vec3(1,0,0),1.71);
+    skeleton_joint j_90 = skeleton_joint(vec3(0,0,length/2),quaternion(0,0,0,1));
+    j_90.orientation.set_axis_angle(vec3(1,0,0),M_PI/2);
     sk_cylinder_bind_pose[1] = j_90;
     sk_cylinder_animation.push_back(sk_cylinder_bind_pose);
 
@@ -144,15 +145,14 @@ void scene::load_scene()
     Init_cylinder_skeleton(sk_cylinder_parent_id, sk_cylinder_bind_pose , length) ;
 
     //Test to check if the function works
-
-    cpe::skeleton_geometry glob = local_to_global(sk_cylinder_bind_pose, sk_cylinder_parent_id);
+    // cpe::skeleton_geometry glob = local_to_global(sk_cylinder_bind_pose, sk_cylinder_parent_id);
 
     Init_cylinder_animation(sk_cylinder_parent_id, sk_cylinder_bind_pose, sk_cylinder_animation, length);
     
 
 
 
-
+    time.start();
 }
 
 
@@ -162,7 +162,24 @@ void scene::draw_scene()
 
     setup_shader_skeleton(shader_skeleton);
 
-    skeleton_geometry const sk_cylinder_global = local_to_global(sk_cylinder_bind_pose,sk_cylinder_parent_id);
+    if (time.elapsed()>1000){
+        if ((order > 0) && (index + 1 < sk_cylinder_animation.size())){
+            index +=1;
+        } else if ((order > 0) && (index + 1 >= sk_cylinder_animation.size())){
+            order *= -1;
+            index -= 1;
+        } else if ((order < 0) && (index - 1 >= 0)){
+            index -=1;
+        } else {
+            order *= -1;
+            index +=1;
+        }
+
+        time.restart();
+    }
+
+
+    skeleton_geometry const sk_cylinder_global = local_to_global(sk_cylinder_animation[index],sk_cylinder_parent_id);
     std::vector<vec3> const sk_cylinder_bones = extract_bones(sk_cylinder_global,sk_cylinder_parent_id);
     draw_skeleton(sk_cylinder_bones);
 
