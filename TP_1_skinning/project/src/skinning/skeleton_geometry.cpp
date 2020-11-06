@@ -191,7 +191,7 @@ skeleton_geometry inversed(skeleton_geometry const& skeleton)
     for(skeleton_joint const& joint : skeleton)
     {
         //TO DO: calculer l'inverse de chaque repere
-        sk_inversed.push_back(skeleton_joint(-conjugated(joint.orientation) * joint.position, conjugated(joint.orientation)));
+        sk_inversed.push_back(skeleton_joint(-1*(conjugated(joint.orientation) * joint.position), conjugated(joint.orientation)));
     }
 
     return sk_inversed;

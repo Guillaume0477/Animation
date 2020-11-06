@@ -53,22 +53,31 @@ static cpe::mesh_skinned build_cylinder(float const R,float const H, int const n
         float h = k*incH;
         for (int i = 0; i < nbT ; i++){
             vertex_weight_parameter vwp;
-            skinning_weight sw;
+            skinning_weight sw, swbis;
 
             float theta = i*incT;
             m.add_vertex(vec3(R*cos(theta), R*sin(theta), h));
 
-            if (h>H/2){
-                sw.joint_id = 1;
-                sw.weight = 1;
-                vwp[0] = sw; 
-                m.add_vertex_weight(vwp);
-            } else {
-                sw.joint_id = 0;
-                sw.weight = 1;
-                vwp[0] = sw;
-                m.add_vertex_weight(vwp);
-            }
+
+            // //utilisation d'un poids soit 0 soit 1 strict
+            // if (h>H/2){
+            //     sw.joint_id = 1;
+            //     sw.weight = 1;
+            // } else {
+            //     sw.joint_id = 0;
+            //     sw.weight = 1;
+            // }
+            // vwp[0] = sw; 
+
+            //utilisation d'un poids linéaire
+            sw.joint_id = 0;
+            sw.weight = 1 - h/H;
+            swbis.joint_id = 1;
+            swbis.weight = h/H;
+            vwp[0] = sw; 
+            vwp[1] = swbis;
+ 
+            m.add_vertex_weight(vwp);
         }
     }
     //Creates triangles of the cylinder
