@@ -205,9 +205,13 @@ void scene::draw_scene()
 
     mesh_ground_opengl.draw();
 
+    skeleton_geometry const sk_cylinder_inverse_bind_pose = inversed(sk_cylinder_bind_pose);
+    skeleton_geometry const sk_cylinder_binded = multiply(sk_cylinder_global,sk_cylinder_inverse_bind_pose);
+    mesh_cylinder.apply_skinning(sk_cylinder_binded);
+    mesh_cylinder.fill_normal();
+    mesh_cylinder_opengl.update_vbo_vertex(mesh_cylinder);
+    mesh_cylinder_opengl.update_vbo_normal(mesh_cylinder);
     mesh_cylinder_opengl.draw();
-
-    
 
 }
 
