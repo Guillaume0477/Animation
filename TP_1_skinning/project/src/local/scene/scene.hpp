@@ -100,6 +100,9 @@ private:
     int order = 1;
     int index = 0;
     int next = 1;
+    int order_monster = 1;
+    int index_monster = 0;
+    int next_monster = 1;
 
     void setup_shader_mesh(GLuint shader_id);
     void setup_shader_skeleton(GLuint shader_id);

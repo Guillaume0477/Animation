@@ -144,6 +144,13 @@ static void Init_cylinder_animation(cpe::skeleton_parent_id &sk_cylinder_parent_
 
 }
 
+static void Init_monster_animation(cpe::skeleton_parent_id &sk_monster_parent_id,cpe::skeleton_geometry sk_monster_bind_pose ,cpe::skeleton_animation &sk_monster_animation)
+{
+
+    sk_monster_animation.load("data/Monster.animations",sk_monster_bind_pose.size());
+    
+}
+
 void scene::load_scene()
 {
 
@@ -193,6 +200,8 @@ void scene::load_scene()
 
     Init_cylinder_animation(sk_cylinder_parent_id, sk_cylinder_bind_pose, sk_cylinder_animation, length);
     
+    Init_monster_animation(sk_monster_parent_id, sk_monster_bind_pose, sk_monster_animation);
+    
 
 
 
@@ -207,6 +216,19 @@ void scene::draw_scene()
 
     if (time.elapsed()>1000){
         index = next;
+        index_monster = next_monster;
+
+        if ((order_monster > 0) && (next_monster + 1 < sk_monster_animation.size()-1)){
+            next_monster +=1;
+        } else if ((order > 0) && (next_monster + 1 >= sk_monster_animation.size()-1)){
+            order_monster *= -1;
+            next_monster -= 1;
+        } else if ((order_monster < 0) && (next_monster - 1 >= 0)){
+            next_monster -=1;
+        } else {
+            order_monster *= -1;
+            next_monster +=1;
+        }
 
         if ((order > 0) && (next + 1 < sk_cylinder_animation.size())){
             next +=1;
@@ -226,6 +248,7 @@ void scene::draw_scene()
     float alpha = float(time.elapsed()) / 1000.0;
 
     skeleton_geometry sk_toUse = interpolated(sk_cylinder_animation[index], sk_cylinder_animation[next], alpha); //sk_cylinder_animation(index, alpha);// sk_cylinder_animation[index]; //
+    skeleton_geometry sk_toUse_monster = interpolated(sk_monster_animation[index_monster], sk_monster_animation[next_monster], alpha); //sk_cylinder_animation(index, alpha);// sk_cylinder_animation[index]; //
 
 
     skeleton_geometry const sk_cylinder_global = local_to_global(sk_toUse,sk_cylinder_parent_id);
@@ -233,7 +256,7 @@ void scene::draw_scene()
     draw_skeleton(sk_cylinder_bones);
 
 
-    skeleton_geometry const sk_monster_global = local_to_global(sk_monster_bind_pose,sk_monster_parent_id);
+    skeleton_geometry const sk_monster_global = local_to_global(sk_toUse_monster,sk_monster_parent_id);
     std::vector<vec3> const sk_monster_bones = extract_bones(sk_monster_global,sk_monster_parent_id);
     draw_skeleton(sk_monster_bones);
 
@@ -253,7 +276,12 @@ void scene::draw_scene()
     mesh_cylinder_opengl.draw();
 
 
-
+    // skeleton_geometry const sk_monster_inverse_bind_pose = inversed(sk_monster_bind_pose);
+    // skeleton_geometry const sk_monster_binded = multiply(sk_monster_global,sk_monster_inverse_bind_pose);
+    // mesh_monster.apply_skinning(sk_monster_binded);
+    // mesh_monster.fill_normal();
+    // mesh_monster_opengl.update_vbo_vertex(mesh_monster);
+    // mesh_monster_opengl.update_vbo_normal(mesh_monster);
     glBindTexture(GL_TEXTURE_2D, texture_monster);
     mesh_monster_opengl.draw();
 
