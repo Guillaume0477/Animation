@@ -46,6 +46,7 @@ public:
     cpe::vec3 getBendingForce(int ku, int kv, int const Nu, int const Nv, float K_bend);
     cpe::vec3 getShearingForce(int ku, int kv, int const Nu, int const Nv, float K_shearing);
     void collisionPlan(int axis, float limit);
+    void collisionSphere(float radius, vec3 center);
 
 private:
 

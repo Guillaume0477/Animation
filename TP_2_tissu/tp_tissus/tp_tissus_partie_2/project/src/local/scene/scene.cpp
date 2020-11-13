@@ -90,6 +90,7 @@ void scene::draw_scene()
             // compute-force / time integration
             mesh_cloth.update_force();
             mesh_cloth.collisionPlan(2, mesh_ground.vertex(0)[2]);
+            // mesh_cloth.collisionSphere(0.198f , {0.5f,0.05f,-1.1f});
             mesh_cloth.integration_step(delta_t);
 
             // re-compute normals

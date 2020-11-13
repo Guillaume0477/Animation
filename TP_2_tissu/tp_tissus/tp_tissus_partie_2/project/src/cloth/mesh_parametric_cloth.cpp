@@ -276,6 +276,23 @@ void mesh_parametric_cloth::collisionPlan(int axis, float limit){
 
 }
 
+void mesh_parametric_cloth::collisionSphere(float radius, vec3 center){
+
+    int const Nu = size_u();
+    int const Nv = size_v();
+    int const N_total = Nu*Nv;
+
+    for (int k = 0; k < N_total ; k++){
+        vec3 vectorDir = vertex_data[k]-center;
+        float value = norm(vectorDir);
+        if ( value < radius){
+            vertex_data[k] = (radius+0.01) * (center + vectorDir/value);
+            // force_data[k] = 0;
+            // speed_data[k] = 0;
+        }
+    }
+
+}
 
 }
 
