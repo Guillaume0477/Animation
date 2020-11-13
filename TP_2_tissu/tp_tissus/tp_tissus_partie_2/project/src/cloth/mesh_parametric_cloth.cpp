@@ -48,11 +48,17 @@ void mesh_parametric_cloth::update_force()
     //*************************************************************//
     // TO DO, Calculer les forces s'appliquant sur chaque sommet
     //*************************************************************//
-    //
-    // ...
-    //
-    //
-    //
+    
+    // for (int ku = 0 ; ku < Nu ; ++ku){
+    //     for (int kv = 0 ; kv < Nv ; ++kv){
+
+    //     }
+    // }
+
+    //Fix forces of the corners to 0
+    force(0,0) = vec3(0.0,0.0,0.0);
+    force(0,Nv-1) = vec3(0.0,0.0,0.0);
+
     //*************************************************************//
 
 
