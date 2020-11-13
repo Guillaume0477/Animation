@@ -69,11 +69,12 @@ void mesh_parametric_cloth::integration_step(float const dt)
     //*************************************************************//
     // TO DO: Calculer l'integration numerique des positions au cours de l'intervalle de temps dt.
     //*************************************************************//
-    //
-    // ...
-    //
-    //
-    //
+    
+    for (int i = 0; i < Nu*Nv; i++){
+        speed_data[i] += dt*force_data[i];
+        vertex_data[i] += dt*speed_data[i];
+    }
+
     //*************************************************************//
 
 
