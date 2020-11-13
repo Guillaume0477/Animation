@@ -286,7 +286,7 @@ void mesh_parametric_cloth::collisionSphere(float radius, vec3 center){
         vec3 vectorDir = vertex_data[k]-center;
         float value = norm(vectorDir);
         if ( value < radius){
-            vertex_data[k] = (radius+0.01) * (center + vectorDir/value);
+            vertex_data[k] = (radius+0.01) * ( vectorDir/value) + center ;
             // force_data[k] = 0;
             // speed_data[k] = 0;
         }
