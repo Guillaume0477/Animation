@@ -25,6 +25,37 @@ namespace cpe
 {
 
 
+cpe::vec3 getElasticForce(cpe::vec3 origin, cpe::vec3 neighbour, float K = 20.0f, float L_rest = 0.2f){
+
+    cpe::vec3 u = neighbour - origin;
+    float L = norm(u);
+    cpe::vec3 F = K*(L-L_rest)*u/L;
+
+    return F;
+}
+
+cpe::vec3 mesh_parametric_cloth::getStructuralForce(int ku, int kv, int const Nu, int const Nv, float K_structural){
+
+    //Structural forces
+    cpe::vec3 Fright, Fleft, Ftop, Fbottom = cpe::vec3(0.0,0.0,0.0);
+    cpe::vec3 curVec = vertex(ku,kv);
+    if (ku + 1 < Nu){
+        Fright = getElasticForce(curVec, vertex(ku+1,kv), K_structural);
+    }
+    if (ku - 1 >= 0){
+        Fleft = getElasticForce(curVec, vertex(ku-1, kv), K_structural);
+    }
+    if (kv + 1 < Nv){
+        Fbottom = getElasticForce(curVec, vertex(ku, kv+1), K_structural);
+    }
+    if (kv - 1 >= 0){
+        Ftop = getElasticForce(curVec, vertex(ku, kv-1), K_structural);
+    }
+    std::cout << Ftop << " / " << Fbottom << " / " << std::endl;
+    return Ftop + Fright + Fbottom + Fleft;
+
+}
+
 void mesh_parametric_cloth::update_force()
 {
 
@@ -49,15 +80,24 @@ void mesh_parametric_cloth::update_force()
     // TO DO, Calculer les forces s'appliquant sur chaque sommet
     //*************************************************************//
     
-    // for (int ku = 0 ; ku < Nu ; ++ku){
-    //     for (int kv = 0 ; kv < Nv ; ++kv){
-
-    //     }
-    // }
-
     //Fix forces of the corners to 0
     force(0,0) = vec3(0.0,0.0,0.0);
     force(0,Nv-1) = vec3(0.0,0.0,0.0);
+
+    float K_structural = 10.0;
+
+    for (int ku = 0 ; ku < Nu ; ++ku){
+        for (int kv = 0 ; kv < Nv ; ++kv){
+            if (((ku == 0) && (kv == 0)) || ((ku == 0) && (kv == Nv-1))){
+                continue;
+            }
+
+            force(ku,kv) += getStructuralForce(ku, kv, Nu, Nv, K_structural)/N_total;
+
+        }
+    }
+
+    
 
     //*************************************************************//
 
@@ -168,3 +208,4 @@ vec3& mesh_parametric_cloth::force(int const ku,int const kv)
 
 
 }
+
