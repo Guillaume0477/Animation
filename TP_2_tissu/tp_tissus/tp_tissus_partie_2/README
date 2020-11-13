@@ -1,0 +1,34 @@
+Pour compiler et executer a partir du CMakeLists.txt
+
+cd project
+mkdir build
+cd build
+cmake ..
+make
+cd ..
+./build/pgm
+
+- Note sur l'utilisation des IDE (QtCreator, etc).
+
+Le repertoire d'execution doit être dans project/
+C'est a dire que le repertoire data/ doit être accessible.
+
+
+Pour une utilisation sur windows avec Visual studio:
+
+Ajouter le dossier bin de l'installation de Qt dans le Path (ex: C:\Qt\5.14.1\msvc2015_64\bin\)
+Pour ajouter un élément au path: 
+	Panneau de configuration ==> Système ==> Paramètres système avancés ==> variables d'environnement 
+	Sélectionnez la ligne correspondant à Path dans la catégorie "variables système" ==> modifier ==> Nouveau
+Il vous faudra probablement redémarrer le pc après avoir fait ça (sinon cmake risque de ne pas trouver Qt sur votre pc).
+
+Après la première compilation ouvrez une console et allez à coté de l'executable (probablement build/Release)
+Exécutez la ligne suivante (cela va placer les info que Qt utilise à l'execution à coté du .exe):
+windeployqt pgm.exe
+Cette étape n'est à faire que la première fois. Si vous ne la faite pas quand vous lancez le programme cela va vous ouvrir une popup avec une erreur potentiellement compliquée quand vous lancez votre programme.
+
+Autre rappels pour visual studio:
+Quand vous ouvrez le .sln généré par l'utilisation de cmake, il y a plusieurs "projets" dans la "solution".
+Pour choisir le projet lancé quand vous faites crtl+F5: click droit sur le projet que vous voulez lancer et cliquez sur "Set as start up project" (conseil n'installez jamais un IDE en FR cela va juste vous gêner car chercher des erreur en anglais sur google est bien plus simple qu'en FR).
+Vous pouvez savoir quel projet est lancé par ctrl+F5 car il est en gras.
+Et pour sélectionner le répertoire d'exécution: Click droit sur le projet ==> properties ==> Debugging ==> modifiez Working directory en $(ProjectDir)/../      ($(ProjectDir) contient le chemin du dossier build).
