@@ -25,11 +25,11 @@ namespace cpe
 {
 
 
-cpe::vec3 getElasticForce(cpe::vec3 origin, cpe::vec3 neighbour, float K = 20.0f, float L_rest = 0.2f){
+cpe::vec3 getElasticForce(cpe::vec3 origin, cpe::vec3 neighbour, float K = 20.0f, float L_rest = 1.0/30.0f){
 
     cpe::vec3 u = neighbour - origin;
     float L = norm(u);
-    cpe::vec3 F = K*(L-L_rest)*u/L;
+    cpe::vec3 F = K*(L - L_rest)*u/L;
 
     return F;
 }
@@ -39,20 +39,25 @@ cpe::vec3 mesh_parametric_cloth::getStructuralForce(int ku, int kv, int const Nu
     //Structural forces
     cpe::vec3 Fright, Fleft, Ftop, Fbottom = cpe::vec3(0.0,0.0,0.0);
     cpe::vec3 curVec = vertex(ku,kv);
+    int Nforce = 0;
     if (ku + 1 < Nu){
         Fright = getElasticForce(curVec, vertex(ku+1,kv), K_structural);
+        Nforce +=1;
     }
     if (ku - 1 >= 0){
         Fleft = getElasticForce(curVec, vertex(ku-1, kv), K_structural);
+        Nforce +=1;
     }
     if (kv + 1 < Nv){
         Fbottom = getElasticForce(curVec, vertex(ku, kv+1), K_structural);
+        Nforce +=1;
     }
     if (kv - 1 >= 0){
         Ftop = getElasticForce(curVec, vertex(ku, kv-1), K_structural);
+        Nforce +=1;
     }
-    std::cout << Ftop << " / " << Fbottom << " / " << std::endl;
-    return Ftop + Fright + Fbottom + Fleft;
+    
+    return (Ftop + Fright + Fbottom + Fleft);
 
 }
 
@@ -92,7 +97,7 @@ void mesh_parametric_cloth::update_force()
                 continue;
             }
 
-            force(ku,kv) += getStructuralForce(ku, kv, Nu, Nv, K_structural)/N_total;
+            force(ku,kv) += getStructuralForce(ku, kv, Nu, Nv, K_structural);
 
         }
     }
