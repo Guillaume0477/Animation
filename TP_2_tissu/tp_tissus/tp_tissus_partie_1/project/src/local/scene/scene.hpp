@@ -88,12 +88,19 @@ private:
     cpe::vec3 p0;
     /** Position of point 1 */
     cpe::vec3 p1;
+    /** Position of point 2 */
+    cpe::vec3 p2;
 
     /** Rest length of spring 0-1 */
     float L10_rest;
+    /** Rest length of spring 1-2 */
+    float L21_rest;
+    
 
     /** Speed of spring 1 */
     cpe::vec3 v1;
+    /** Speed of spring 2 */
+    cpe::vec3 v2;
 
 
 

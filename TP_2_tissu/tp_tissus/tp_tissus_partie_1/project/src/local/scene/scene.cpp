@@ -68,6 +68,9 @@ void scene::load_scene()
     p1 = vec3(0.0f,0.0f,0.4f);
     v1 = vec3(1.0f,1.0f,3.0f);
     L10_rest = 0.2f;
+    p2 = vec3(0.0f, 0.0f, 0.3f);
+    v2 = vec3(-1.0f, -1.0f, -3.0f);
+    L21_rest = 0.2f;
 
 
 }
@@ -91,13 +94,22 @@ void scene::draw_scene()
     if( time_integration.elapsed() > 5 )
     {
         vec3 const u0 = p0-p1;
+        vec3 const u1 = p1 - p2;
         float const L10 = norm(u0);
+        float const L21 = norm(u1);
 
+        //Creation de la force de rappel de 0 sur 1
         vec3 const f10 = K * (L10-L10_rest) * u0/L10;
+        //Creation de la force de rappel de 2 sur 1
+        vec3 const f21 = K * (L21-L21_rest) * u1/L21;
+        
 
-        v1 = (1-mu*delta_t)*v1 + delta_t*(f10+g);
+        //Modification des vitesses et positions d'apres l'equation de mouvement
+        v1 = (1-mu*delta_t)*v1 + delta_t*(f10+g-f21);
         p1 =                p1 + delta_t*v1;
 
+        v2 = (1-mu*delta_t)*v2 + delta_t*(f21+g);
+        p2 =                p2 + delta_t*v2;
 
 
         time_integration.restart();
@@ -114,6 +126,10 @@ void scene::draw_scene()
     glUniform3f(get_uni_loc(shader_sphere,"translation") , p1.x(),p1.y(),p1.z());
     mesh_sphere_opengl.draw();
 
+    //draw p2
+    glUniform3f(get_uni_loc(shader_sphere,"translation") , p2.x(),p2.y(),p2.z());
+    mesh_sphere_opengl.draw();
+
 
     // draw p0-p1
     line_opengl line;
@@ -123,6 +139,15 @@ void scene::draw_scene()
     glUniformMatrix4fv(get_uni_loc(line.shader_id(),"camera_modelview"),1,false,cam.modelview.pointer());     PRINT_OPENGL_ERROR();
     glUniformMatrix4fv(get_uni_loc(line.shader_id(),"camera_projection"),1,false,cam.projection.pointer());   PRINT_OPENGL_ERROR();
     line.draw(p0,p1);
+
+    // draw p0-p1
+    line_opengl line2;
+    line2.init();
+    glUseProgram(line2.shader_id());
+    camera_matrices const& cam2=pwidget->camera();
+    glUniformMatrix4fv(get_uni_loc(line2.shader_id(),"camera_modelview"),1,false,cam2.modelview.pointer());     PRINT_OPENGL_ERROR();
+    glUniformMatrix4fv(get_uni_loc(line2.shader_id(),"camera_projection"),1,false,cam2.projection.pointer());   PRINT_OPENGL_ERROR();
+    line2.draw(p1,p2);
 
 
 }
