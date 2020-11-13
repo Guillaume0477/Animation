@@ -39,17 +39,18 @@ cpe::vec3 mesh_parametric_cloth::getStructuralForce(int ku, int kv, int const Nu
     //Structural forces
     cpe::vec3 Fright, Fleft, Ftop, Fbottom = cpe::vec3(0.0,0.0,0.0);
     cpe::vec3 curVec = vertex(ku,kv);
+    float L_structural = 1.0/Nu;
     if (ku + 1 < Nu){
-        Fright = getElasticForce(curVec, vertex(ku+1,kv), K_structural, 1.0/30.0);
+        Fright = getElasticForce(curVec, vertex(ku+1,kv), K_structural, L_structural);
     }
     if (ku - 1 >= 0){
-        Fleft = getElasticForce(curVec, vertex(ku-1, kv), K_structural, 1.0/30.0);
+        Fleft = getElasticForce(curVec, vertex(ku-1, kv), K_structural, L_structural);
     }
     if (kv + 1 < Nv){
-        Fbottom = getElasticForce(curVec, vertex(ku, kv+1), K_structural, 1.0/30.0);
+        Fbottom = getElasticForce(curVec, vertex(ku, kv+1), K_structural, L_structural);
     }
     if (kv - 1 >= 0){
-        Ftop = getElasticForce(curVec, vertex(ku, kv-1), K_structural, 1.0/30.0);
+        Ftop = getElasticForce(curVec, vertex(ku, kv-1), K_structural, L_structural);
     }
     
     return (Ftop + Fright + Fbottom + Fleft);
@@ -61,17 +62,18 @@ cpe::vec3 mesh_parametric_cloth::getBendingForce(int ku, int kv, int const Nu, i
     //Structural forces
     cpe::vec3 Fright, Fleft, Ftop, Fbottom = cpe::vec3(0.0,0.0,0.0);
     cpe::vec3 curVec = vertex(ku,kv);
+    float L_Bending = 2.0/Nu;
     if (ku + 2 < Nu){
-        Fright = getElasticForce(curVec, vertex(ku+2,kv), K_bend, 2.0/30.0);
+        Fright = getElasticForce(curVec, vertex(ku+2,kv), K_bend, L_Bending);
     }
     if (ku - 2 >= 0){
-        Fleft = getElasticForce(curVec, vertex(ku-2, kv), K_bend, 2.0/30.0);
+        Fleft = getElasticForce(curVec, vertex(ku-2, kv), K_bend, L_Bending);
     }
     if (kv + 2 < Nv){
-        Fbottom = getElasticForce(curVec, vertex(ku, kv+2), K_bend, 2.0/30.0);
+        Fbottom = getElasticForce(curVec, vertex(ku, kv+2), K_bend, L_Bending);
     }
     if (kv - 2 >= 0){
-        Ftop = getElasticForce(curVec, vertex(ku, kv-2), K_bend, 2.0/30.0);
+        Ftop = getElasticForce(curVec, vertex(ku, kv-2), K_bend, L_Bending);
     }
     
     return (Ftop + Fright + Fbottom + Fleft);
@@ -84,17 +86,18 @@ cpe::vec3 mesh_parametric_cloth::getShearingForce(int ku, int kv, int const Nu, 
     //Structural forces
     cpe::vec3 Ftopright, FbottomLeft, FtopLeft, FbottomRight = cpe::vec3(0.0,0.0,0.0);
     cpe::vec3 curVec = vertex(ku,kv);
+    float L_Shear = float(sqrt(2))/Nu;
     if ((ku + 1 < Nu) && (kv + 1 < Nv)) {
-        Ftopright = getElasticForce(curVec, vertex(ku+1,kv+1), K_shearing, sqrt(2)/30.0);
+        Ftopright = getElasticForce(curVec, vertex(ku+1,kv+1), K_shearing, L_Shear);
     }
     if ((ku - 1 >= 0) && (kv - 1 >= 0)){
-        FbottomLeft = getElasticForce(curVec, vertex(ku-1, kv-1), K_shearing, sqrt(2)/30.0);
+        FbottomLeft = getElasticForce(curVec, vertex(ku-1, kv-1), K_shearing, L_Shear);
     }
     if ((ku - 1 >= 0) && (kv + 1 < Nv)){
-        FtopLeft = getElasticForce(curVec, vertex(ku-1, kv+1), K_shearing, sqrt(2)/30.0);
+        FtopLeft = getElasticForce(curVec, vertex(ku-1, kv+1), K_shearing, L_Shear);
     }
     if ((ku + 1 < Nu) && (kv - 1 >= 0)){
-        FbottomRight = getElasticForce(curVec, vertex(ku+1, kv-1), K_shearing, sqrt(2)/30.0);
+        FbottomRight = getElasticForce(curVec, vertex(ku+1, kv-1), K_shearing, L_Shear);
     }
     
     return (Ftopright + FtopLeft + FbottomRight + FbottomLeft);
