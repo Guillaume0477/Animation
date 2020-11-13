@@ -39,22 +39,39 @@ cpe::vec3 mesh_parametric_cloth::getStructuralForce(int ku, int kv, int const Nu
     //Structural forces
     cpe::vec3 Fright, Fleft, Ftop, Fbottom = cpe::vec3(0.0,0.0,0.0);
     cpe::vec3 curVec = vertex(ku,kv);
-    int Nforce = 0;
     if (ku + 1 < Nu){
-        Fright = getElasticForce(curVec, vertex(ku+1,kv), K_structural);
-        Nforce +=1;
+        Fright = getElasticForce(curVec, vertex(ku+1,kv), K_structural, 1.0/30.0);
     }
     if (ku - 1 >= 0){
-        Fleft = getElasticForce(curVec, vertex(ku-1, kv), K_structural);
-        Nforce +=1;
+        Fleft = getElasticForce(curVec, vertex(ku-1, kv), K_structural, 1.0/30.0);
     }
     if (kv + 1 < Nv){
-        Fbottom = getElasticForce(curVec, vertex(ku, kv+1), K_structural);
-        Nforce +=1;
+        Fbottom = getElasticForce(curVec, vertex(ku, kv+1), K_structural, 1.0/30.0);
     }
     if (kv - 1 >= 0){
-        Ftop = getElasticForce(curVec, vertex(ku, kv-1), K_structural);
-        Nforce +=1;
+        Ftop = getElasticForce(curVec, vertex(ku, kv-1), K_structural, 1.0/30.0);
+    }
+    
+    return (Ftop + Fright + Fbottom + Fleft);
+
+}
+
+cpe::vec3 mesh_parametric_cloth::getBendingForce(int ku, int kv, int const Nu, int const Nv, float K_bend){
+
+    //Structural forces
+    cpe::vec3 Fright, Fleft, Ftop, Fbottom = cpe::vec3(0.0,0.0,0.0);
+    cpe::vec3 curVec = vertex(ku,kv);
+    if (ku + 2 < Nu){
+        Fright = getElasticForce(curVec, vertex(ku+2,kv), K_bend, 2.0/30.0);
+    }
+    if (ku - 2 >= 0){
+        Fleft = getElasticForce(curVec, vertex(ku-2, kv), K_bend, 2.0/30.0);
+    }
+    if (kv + 2 < Nv){
+        Fbottom = getElasticForce(curVec, vertex(ku, kv+2), K_bend, 2.0/30.0);
+    }
+    if (kv - 2 >= 0){
+        Ftop = getElasticForce(curVec, vertex(ku, kv-2), K_bend, 2.0/30.0);
     }
     
     return (Ftop + Fright + Fbottom + Fleft);
@@ -89,7 +106,8 @@ void mesh_parametric_cloth::update_force()
     force(0,0) = vec3(0.0,0.0,0.0);
     force(0,Nv-1) = vec3(0.0,0.0,0.0);
 
-    float K_structural = 10.0;
+    float K_structural = 10.0f;
+    float K_bending = 8.0f;
 
     for (int ku = 0 ; ku < Nu ; ++ku){
         for (int kv = 0 ; kv < Nv ; ++kv){
@@ -98,7 +116,7 @@ void mesh_parametric_cloth::update_force()
             }
 
             force(ku,kv) += getStructuralForce(ku, kv, Nu, Nv, K_structural);
-
+            force(ku,kv) += getBendingForce(ku, kv, Nu, Nv, K_bending);
         }
     }
 

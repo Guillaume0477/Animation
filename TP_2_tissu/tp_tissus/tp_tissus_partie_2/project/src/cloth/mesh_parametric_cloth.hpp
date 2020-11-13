@@ -42,6 +42,7 @@ public:
     void update_force();
     void integration_step(float dt);
     cpe::vec3 getStructuralForce(int ku, int kv, int const Nu, int const Nv, float K_structural);
+    cpe::vec3 getBendingForce(int ku, int kv, int const Nu, int const Nv, float K_structural);
 
 private:
 
