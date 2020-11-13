@@ -285,6 +285,8 @@ void scene::draw_scene()
     glBindTexture(GL_TEXTURE_2D, texture_monster);
     mesh_monster_opengl.draw();
 
+// -4.18627 -0.512967 10.6112 0.611681 0.354728 0.611703 0.354731
+
 }
 
 

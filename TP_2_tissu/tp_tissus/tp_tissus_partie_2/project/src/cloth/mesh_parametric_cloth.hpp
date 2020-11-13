@@ -24,6 +24,7 @@
 #include "../lib/mesh/mesh_parametric.hpp"
 #include "../lib/common/exception_cpe.hpp"
 
+
 namespace cpe
 {
 class mesh_parametric_cloth : public mesh_parametric
@@ -44,6 +45,7 @@ public:
     cpe::vec3 getStructuralForce(int ku, int kv, int const Nu, int const Nv, float K_structural);
     cpe::vec3 getBendingForce(int ku, int kv, int const Nu, int const Nv, float K_bend);
     cpe::vec3 getShearingForce(int ku, int kv, int const Nu, int const Nv, float K_shearing);
+    void collisionPlan(int axis, float limit);
 
 private:
 

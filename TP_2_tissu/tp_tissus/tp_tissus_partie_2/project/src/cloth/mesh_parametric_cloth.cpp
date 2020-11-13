@@ -257,5 +257,22 @@ vec3& mesh_parametric_cloth::force(int const ku,int const kv)
 }
 
 
+void mesh_parametric_cloth::collisionPlan(int axis, float limit){
+
+    int const Nu = size_u();
+    int const Nv = size_v();
+    int const N_total = Nu*Nv;
+
+    for (int k = 0; k < N_total ; k++){
+        if (vertex_data[k][axis] < limit){
+            vertex_data[k][axis] = limit+0.01;
+            force_data[k][axis] = 0;
+            speed_data[k][axis] = 0;
+        }
+    }
+
+}
+
+
 }
 
