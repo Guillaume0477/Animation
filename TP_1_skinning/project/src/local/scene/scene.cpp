@@ -67,23 +67,23 @@ static cpe::mesh_skinned build_cylinder(float const R,float const H, int const n
             //     sw.joint_id = 0;
             //     sw.weight = 1;
             // }
-            // vwp[0] = sw; 
+            // vwp[0] = sw;
 
             //utilisation d'un poids linéaire
             sw.joint_id = 0;
             sw.weight = 1 - h/H;
             swbis.joint_id = 1;
             swbis.weight = h/H;
-            vwp[0] = sw; 
+            vwp[0] = sw;
             vwp[1] = swbis;
- 
+
             m.add_vertex_weight(vwp);
         }
     }
     //Creates triangles of the cylinder
     for (int i = 0; i < nbH-1; i++){
         for (int j = 0; j < nbT-1; j++){
-            
+
             m.add_triangle_index({i*nbT + j, i*nbT + j+1, (i+1)*nbT + j + 1});
             m.add_triangle_index({i*nbT + j , (i+1)*nbT + j+1, (i+1)*nbT + j});
         }
@@ -148,7 +148,8 @@ static void Init_monster_animation(cpe::skeleton_parent_id &sk_monster_parent_id
 {
 
     sk_monster_animation.load("data/Monster.animations",sk_monster_bind_pose.size());
-    
+
+
 }
 
 void scene::load_scene()
@@ -187,22 +188,22 @@ void scene::load_scene()
     // Build monster
     //*****************************************//
     mesh_monster.load("data/Monster.obj");
+    // for (int k = 0; k < mesh_monster.size_vertex_weight() ; k++){
+    //     vec3 colorToUse = vec3(mesh_monster.vertex_weight(k)[0].weight, mesh_monster.vertex_weight(k)[1].weight, mesh_monster.vertex_weight(k)[3].weight);
+    //     mesh_monster.add_color(colorToUse);
+    // }
     mesh_monster.fill_empty_field_by_default();
     mesh_monster_opengl.fill_vbo(mesh_monster);
-
-
+    
+    //Init the skeletons
     Init_cylinder_skeleton(sk_cylinder_parent_id, sk_cylinder_bind_pose , length) ;
-
     Init_monster_skeleton(sk_monster_parent_id, sk_monster_bind_pose) ;
 
-    //Test to check if the function works
-    // cpe::skeleton_geometry glob = local_to_global(sk_cylinder_bind_pose, sk_cylinder_parent_id);
-
+    //Initialize the animations frames of the squeletons
     Init_cylinder_animation(sk_cylinder_parent_id, sk_cylinder_bind_pose, sk_cylinder_animation, length);
-    
     Init_monster_animation(sk_monster_parent_id, sk_monster_bind_pose, sk_monster_animation);
-    
 
+//-4.18627 -0.512967 10.6112 0.611681 0.354728 0.611703 0.354731
 
 
     time.start();
@@ -214,22 +215,27 @@ void scene::draw_scene()
 {
     setup_shader_skeleton(shader_skeleton);
 
-    if (time.elapsed()>1000){
-        index = next;
+    move += order_monster * vec3(1, 0.0, 0.0);
+    if (time.elapsed()>25){
         index_monster = next_monster;
 
         if ((order_monster > 0) && (next_monster + 1 < sk_monster_animation.size()-1)){
             next_monster +=1;
+
         } else if ((order > 0) && (next_monster + 1 >= sk_monster_animation.size()-1)){
             order_monster *= -1;
             next_monster -= 1;
+
         } else if ((order_monster < 0) && (next_monster - 1 >= 0)){
             next_monster -=1;
         } else {
             order_monster *= -1;
             next_monster +=1;
         }
+    }
 
+    if (time.elapsed() > 50){
+        index = next;
         if ((order > 0) && (next + 1 < sk_cylinder_animation.size())){
             next +=1;
         } else if ((order > 0) && (next + 1 >= sk_cylinder_animation.size())){
@@ -245,15 +251,19 @@ void scene::draw_scene()
 
     }
 
-    float alpha = float(time.elapsed()) / 1000.0;
+    float alpha = float(time.elapsed()) / 50.0;
 
-    skeleton_geometry sk_toUse = interpolated(sk_cylinder_animation[index], sk_cylinder_animation[next], alpha); //sk_cylinder_animation(index, alpha);// sk_cylinder_animation[index]; //
-    skeleton_geometry sk_toUse_monster = interpolated(sk_monster_animation[index_monster], sk_monster_animation[next_monster], alpha); //sk_cylinder_animation(index, alpha);// sk_cylinder_animation[index]; //
+    //Here we can draw skeletons as 3D segments
 
+    skeleton_geometry sk_toUse = interpolated(sk_cylinder_animation[index], sk_cylinder_animation[next], alpha);  //sk_cylinder_animation(index, alpha);// sk_cylinder_animation[index]; //
+    skeleton_geometry sk_toUse_monster =  interpolated(sk_monster_animation[index_monster], sk_monster_animation[next_monster], alpha); //sk_monster_animation(index_monster,alpha); //
+    sk_toUse_monster[0].position += move - vec3(100.0, 0.0, 0.0);
+    // sk_monster_bind_pose[0].position -= vec3(0.0, 0.1,0);
+    // skeleton_geometry sk_toUse_monster = sk_monster_bind_pose;
 
     skeleton_geometry const sk_cylinder_global = local_to_global(sk_toUse,sk_cylinder_parent_id);
     std::vector<vec3> const sk_cylinder_bones = extract_bones(sk_cylinder_global,sk_cylinder_parent_id);
-    draw_skeleton(sk_cylinder_bones);
+    //draw_skeleton(sk_cylinder_bones);
 
 
     skeleton_geometry const sk_monster_global = local_to_global(sk_toUse_monster,sk_monster_parent_id);
@@ -261,8 +271,8 @@ void scene::draw_scene()
     draw_skeleton(sk_monster_bones);
 
 
-    //Here we can draw skeletons as 3D segments
 
+    //Here we draw the object
     setup_shader_mesh(shader_mesh);
 
     mesh_ground_opengl.draw();
@@ -276,16 +286,15 @@ void scene::draw_scene()
     mesh_cylinder_opengl.draw();
 
 
-    // skeleton_geometry const sk_monster_inverse_bind_pose = inversed(sk_monster_bind_pose);
-    // skeleton_geometry const sk_monster_binded = multiply(sk_monster_global,sk_monster_inverse_bind_pose);
-    // mesh_monster.apply_skinning(sk_monster_binded);
-    // mesh_monster.fill_normal();
-    // mesh_monster_opengl.update_vbo_vertex(mesh_monster);
-    // mesh_monster_opengl.update_vbo_normal(mesh_monster);
+    skeleton_geometry const sk_monster_inverse_bind_pose = inversed(local_to_global(sk_monster_bind_pose, sk_monster_parent_id));
+    skeleton_geometry const sk_monster_binded = multiply(sk_monster_global,sk_monster_inverse_bind_pose);
+    mesh_monster.apply_skinning(sk_monster_binded);
+    mesh_monster.fill_normal();
+    mesh_monster_opengl.update_vbo_vertex(mesh_monster);
+    mesh_monster_opengl.update_vbo_normal(mesh_monster);
     glBindTexture(GL_TEXTURE_2D, texture_monster);
     mesh_monster_opengl.draw();
 
-// -4.18627 -0.512967 10.6112 0.611681 0.354728 0.611703 0.354731
 
 }
 

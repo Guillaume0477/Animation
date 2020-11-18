@@ -107,6 +107,7 @@ private:
     void setup_shader_mesh(GLuint shader_id);
     void setup_shader_skeleton(GLuint shader_id);
 
+    cpe::vec3 move = cpe::vec3(0.0, 0.0, 0.0);
 
 
 };
