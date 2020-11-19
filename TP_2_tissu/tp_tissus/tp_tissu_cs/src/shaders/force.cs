@@ -25,7 +25,7 @@ uint xy2i(uvec2 id_2d)
     return id_2d.x * N + id_2d.y;
 }
 
-vec4 compute_spring_force(in uvec2 p, uvec2 n, float K, float L0)
+vec4 compute_spring_force(in uvec2 p, in uvec2 n, in float K, in float L0)
 {
     //*************************************************************//
     // TO DO, Calculer la force s'appliquant du ressort entre p et n
@@ -33,7 +33,9 @@ vec4 compute_spring_force(in uvec2 p, uvec2 n, float K, float L0)
 
     //if n.x < 0 ou >
     //pareil sur y
-    vec3 u = vec3(pos[p] - pos[n]);
+    vec3 u = vec3(pos[xy2i(p)] + pos[xy2i(n)]);
+    //vec3 u = vec3(0,1,0);
+
     float L = sqrt(u.x*u.x + u.y*u.y + u.z*u.z);
     vec3 F = K*(L - L0)*u/L;
     
@@ -43,8 +45,7 @@ vec4 compute_spring_force(in uvec2 p, uvec2 n, float K, float L0)
     return vec4(F, 0.0f);
 }
 
-//vec4 getStructuralForce( in uvec2 p,float K_structural){
-vec4 getStructuralForce( in uvec2 p,float K_structural){
+vec4 getStructuralForce( in uvec2 p, in float K_structural){
 
     //Structural forces
     int ku = int(p.x);
@@ -53,20 +54,19 @@ vec4 getStructuralForce( in uvec2 p,float K_structural){
 
     float L_structural = 1.0f/N;
     
-    // if (ku + 1 < N){
-    //     F += compute_spring_force(p,uvec2(ku+1,kv),K_structural,L_structural);
-    // }
-    // if (ku - 1 >= 0){
-    //     F += compute_spring_force(p,uvec2(ku-1,kv),K_structural,L_structural);
-    // }
-    // if (kv + 1 < N){
-    //     F += compute_spring_force(p,uvec2(ku,kv+1),K_structural,L_structural);
-    // }
-    // if (kv - 1 >= 0){
-    //     F += compute_spring_force(p,uvec2(ku,kv-1),K_structural,L_structural);
-    // }
-    F += compute_spring_force(p,uvec2(0,1),0.1f,0.1f);
-    
+    if (ku + 1 < N){
+        F += compute_spring_force(p,uvec2(ku+1,kv),K_structural,L_structural);
+    }
+    if (ku - 1 >= 0){
+        F += compute_spring_force(p,uvec2(ku-1,kv),K_structural,L_structural);
+    }
+    if (kv + 1 < N){
+        F += compute_spring_force(p,uvec2(ku,kv+1),K_structural,L_structural);
+    }
+    if (kv - 1 >= 0){
+        F += compute_spring_force(p,uvec2(ku,kv-1),K_structural,L_structural);
+    }
+
     return (F);
 
 }
@@ -94,32 +94,32 @@ vec3 mesh_parametric_cloth::getBendingForce(int ku, int kv, int const Nu, int co
 
 }
 
-
-vec3 mesh_parametric_cloth::getShearingForce(int ku, int kv, int const Nu, int const Nv, float K_shearing){
-
-    //Structural forces
-    cpe::vec3 Ftopright, FbottomLeft, FtopLeft, FbottomRight = cpe::vec3(0.0,0.0,0.0);
-    cpe::vec3 curVec = vertex(ku,kv);
-    float L_Shear = float(sqrt(2))/Nu;
-    if ((ku + 1 < Nu) && (kv + 1 < Nv)) {
-        Ftopright = getElasticForce(curVec, vertex(ku+1,kv+1), K_shearing, L_Shear);
-    }
-    if ((ku - 1 >= 0) && (kv - 1 >= 0)){
-        FbottomLeft = getElasticForce(curVec, vertex(ku-1, kv-1), K_shearing, L_Shear);
-    }
-    if ((ku - 1 >= 0) && (kv + 1 < Nv)){
-        FtopLeft = getElasticForce(curVec, vertex(ku-1, kv+1), K_shearing, L_Shear);
-    }
-    if ((ku + 1 < Nu) && (kv - 1 >= 0)){
-        FbottomRight = getElasticForce(curVec, vertex(ku+1, kv-1), K_shearing, L_Shear);
-    }
-    
-    return (Ftopright + FtopLeft + FbottomRight + FbottomLeft);
-
-}
-
-
 */
+// vec3 mesh_parametric_cloth::getShearingForce(int ku, int kv, int const Nu, int const Nv, float K_shearing){
+
+//     //Structural forces
+//     cpe::vec3 Ftopright, FbottomLeft, FtopLeft, FbottomRight = cpe::vec3(0.0,0.0,0.0);
+//     cpe::vec3 curVec = vertex(ku,kv);
+//     float L_Shear = float(sqrt(2))/Nu;
+//     if ((ku + 1 < Nu) && (kv + 1 < Nv)) {
+//         Ftopright = getElasticForce(curVec, vertex(ku+1,kv+1), K_shearing, L_Shear);
+//     }
+//     if ((ku - 1 >= 0) && (kv - 1 >= 0)){
+//         FbottomLeft = getElasticForce(curVec, vertex(ku-1, kv-1), K_shearing, L_Shear);
+//     }
+//     if ((ku - 1 >= 0) && (kv + 1 < Nv)){
+//         FtopLeft = getElasticForce(curVec, vertex(ku-1, kv+1), K_shearing, L_Shear);
+//     }
+//     if ((ku + 1 < Nu) && (kv - 1 >= 0)){
+//         FbottomRight = getElasticForce(curVec, vertex(ku+1, kv-1), K_shearing, L_Shear);
+//     }
+    
+//     return (Ftopright + FtopLeft + FbottomRight + FbottomLeft);
+
+// }
+
+
+
 
 
 
@@ -127,14 +127,15 @@ void main() {
     uvec2 id_2d = gl_GlobalInvocationID.xy;
     uint id = xy2i(id_2d);
     
-    //*************************************************************//
+    //*************************************************************// 
     // TO DO, Calculer les forces s'appliquant sur chaque sommet
     //*************************************************************//
     //
     float K_structural = 10.0;
     force[id] = vec4(0.0,-9.81,0.0,0.0)/900;//
-    //force[id] += getStructuralForce(id_2d,K_structural);
-    //compute_spring_force(id_2d, ivec2(id_2d) + ivec2(id_2d) , float K, float L0)
+    force[id] += getStructuralForce(id_2d,K_structural);
+    //force[id] += compute_spring_force(id_2d,uvec2(0,1),0.1f,0.1f);;
+    //compute_spring_force(id_2d, ivec2(id_2d) + ivec2(0,1) , float K, float L0)
     //
     //
     //
