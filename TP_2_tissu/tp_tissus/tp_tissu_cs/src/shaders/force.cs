@@ -33,7 +33,7 @@ vec4 compute_spring_force(in uvec2 p, in uvec2 n, in float K, in float L0)
 
     //if n.x < 0 ou >
     //pareil sur y
-    vec3 u = vec3(pos[xy2i(p)] + pos[xy2i(n)]);
+    vec3 u = vec3(pos[xy2i(n)] - pos[xy2i(p)]);
     //vec3 u = vec3(0,1,0);
 
     float L = sqrt(u.x*u.x + u.y*u.y + u.z*u.z);
@@ -52,7 +52,7 @@ vec4 getStructuralForce( in uvec2 p, in float K_structural){
     int kv = int(p.y);
     vec4 F = vec4(0.0,0.0,0.0,0.0);
 
-    float L_structural = 1.0f/N;
+    float L_structural = 2.0f/N;
     
     if (ku + 1 < N){
         F += compute_spring_force(p,uvec2(ku+1,kv),K_structural,L_structural);
@@ -70,56 +70,67 @@ vec4 getStructuralForce( in uvec2 p, in float K_structural){
     return (F);
 
 }
-/*
-vec3 mesh_parametric_cloth::getBendingForce(int ku, int kv, int const Nu, int const Nv, float K_bend){
+
+vec4 getBendingForce(in uvec2 p, in float K_bend){
 
     //Structural forces
-    cpe::vec3 Fright, Fleft, Ftop, Fbottom = cpe::vec3(0.0,0.0,0.0);
-    cpe::vec3 curVec = vertex(ku,kv);
-    float L_Bending = 2.0/Nu;
-    if (ku + 2 < Nu){
-        Fright = getElasticForce(curVec, vertex(ku+2,kv), K_bend, L_Bending);
+    int ku = int(p.x);
+    int kv = int(p.y);
+    vec4 F = vec4(0.0,0.0,0.0,0.0);
+ 
+    float L_Bending = 4.0f/N;
+    if (ku + 2 < N){
+        F += compute_spring_force(p,uvec2(ku+2,kv),K_bend,L_Bending);
     }
     if (ku - 2 >= 0){
-        Fleft = getElasticForce(curVec, vertex(ku-2, kv), K_bend, L_Bending);
+        F += compute_spring_force(p,uvec2(ku-2,kv),K_bend,L_Bending);
     }
-    if (kv + 2 < Nv){
-        Fbottom = getElasticForce(curVec, vertex(ku, kv+2), K_bend, L_Bending);
+    if (kv + 2 < N){
+        F += compute_spring_force(p,uvec2(ku,kv+2),K_bend,L_Bending);
     }
     if (kv - 2 >= 0){
-        Ftop = getElasticForce(curVec, vertex(ku, kv-2), K_bend, L_Bending);
+        F += compute_spring_force(p,uvec2(ku,kv-2),K_bend,L_Bending);
     }
     
-    return (Ftop + Fright + Fbottom + Fleft);
+    return (F);
 
 }
 
-*/
-// vec3 mesh_parametric_cloth::getShearingForce(int ku, int kv, int const Nu, int const Nv, float K_shearing){
 
-//     //Structural forces
-//     cpe::vec3 Ftopright, FbottomLeft, FtopLeft, FbottomRight = cpe::vec3(0.0,0.0,0.0);
-//     cpe::vec3 curVec = vertex(ku,kv);
-//     float L_Shear = float(sqrt(2))/Nu;
-//     if ((ku + 1 < Nu) && (kv + 1 < Nv)) {
-//         Ftopright = getElasticForce(curVec, vertex(ku+1,kv+1), K_shearing, L_Shear);
-//     }
-//     if ((ku - 1 >= 0) && (kv - 1 >= 0)){
-//         FbottomLeft = getElasticForce(curVec, vertex(ku-1, kv-1), K_shearing, L_Shear);
-//     }
-//     if ((ku - 1 >= 0) && (kv + 1 < Nv)){
-//         FtopLeft = getElasticForce(curVec, vertex(ku-1, kv+1), K_shearing, L_Shear);
-//     }
-//     if ((ku + 1 < Nu) && (kv - 1 >= 0)){
-//         FbottomRight = getElasticForce(curVec, vertex(ku+1, kv-1), K_shearing, L_Shear);
-//     }
+vec4 getShearingForce(in uvec2 p, in float K_shearing){
+
+    //Structural forces
+    int ku = int(p.x);
+    int kv = int(p.y);
+    vec4 F= vec4(0.0,0.0,0.0,0.0);
+ 
+    float L_Shear = 2*sqrt(2.0f)/N;
+    if ((ku + 1 < N) && (kv + 1 < N)) {
+        F += compute_spring_force(p,uvec2(ku+1,kv+1),K_shearing,L_Shear);
+    }
+    if ((ku - 1 >= 0) && (kv - 1 >= 0)){
+        F += compute_spring_force(p,uvec2(ku-1,kv-1),K_shearing,L_Shear);
+    }
+    if ((ku - 1 >= 0) && (kv + 1 < N)){
+        F += compute_spring_force(p,uvec2(ku-1,kv+1),K_shearing,L_Shear);
+    }
+    if ((ku + 1 < N) && (kv - 1 >= 0)){
+        F += compute_spring_force(p,uvec2(ku+1,kv-1),K_shearing,L_Shear);
+    }
     
-//     return (Ftopright + FtopLeft + FbottomRight + FbottomLeft);
 
-// }
+    return (F);
+
+}
 
 
-
+vec4 getWindForce(uvec2 p, vec3 normalVec, float K, vec3 u){
+    float cosTheta = dot(normalVec, u);
+    // std::cout << cosTheta << std::endl;
+    vec3 f = K*cosTheta*normalVec;
+    // std::cout << f << std::endl;
+    return f;
+}
 
 
 
@@ -131,12 +142,22 @@ void main() {
     // TO DO, Calculer les forces s'appliquant sur chaque sommet
     //*************************************************************//
     //
-    float K_structural = 10.0;
-    force[id] = vec4(0.0,-9.81,0.0,0.0)/900;//
-    force[id] += getStructuralForce(id_2d,K_structural);
-    //force[id] += compute_spring_force(id_2d,uvec2(0,1),0.1f,0.1f);;
-    //compute_spring_force(id_2d, ivec2(id_2d) + ivec2(0,1) , float K, float L0)
-    //
+    float K_structural = 20.0f;
+    float K_shearing = 8.0f;
+    float K_bending = 8.0f;
+    float K_wind = 0.01f;
+
+    if (id == xy2i(uvec2(0,0)) || (id == xy2i(uvec2(N-1,0)))) {
+        force[id] = vec4(0.0,0.0,0.0,0.0);
+    }
+    else{
+        force[id] = vec4(0.0,-9.81,0.0,0.0)/900.0;//
+        force[id] += getStructuralForce(id_2d,K_structural);
+        force[id] += getBendingForce(id_2d,K_bending);
+        force[id] += getShearingForce(id_2d,K_shearing);
+
+    }
+
     //
     //
     //*************************************************************//

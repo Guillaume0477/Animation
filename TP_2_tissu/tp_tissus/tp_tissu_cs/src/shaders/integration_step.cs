@@ -35,10 +35,11 @@ void main() {
     // TO DO, Calculer les nouveaux parametre vit et pos 
     // selon l integration d euler explicite
     //*************************************************************//
-
-
-    vit[id] += dt*force[id];
+    float damping = 0.2;
+    vit[id] = (1-damping * dt) * vit[id] + dt*force[id];
     pos[id] += dt*vit[id];
+    // vit[id] += dt*force[id];
+    // pos[id] += dt*vit[id];
 
 
 
