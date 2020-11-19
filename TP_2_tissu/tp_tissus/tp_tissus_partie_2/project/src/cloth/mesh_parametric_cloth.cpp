@@ -105,6 +105,14 @@ cpe::vec3 mesh_parametric_cloth::getShearingForce(int ku, int kv, int const Nu, 
 }
 
 
+cpe::vec3 getWindForce(cpe::vec3 normalVec, float K, cpe::vec3 u){
+    float cosTheta = dot(normalVec, u);
+    // std::cout << cosTheta << std::endl;
+    cpe::vec3 f = K*cosTheta*normalVec;
+    // std::cout << f << std::endl;
+    return f;
+}
+
 
 void mesh_parametric_cloth::update_force()
 {
@@ -114,6 +122,7 @@ void mesh_parametric_cloth::update_force()
     int const N_total = Nu*Nv;
     ASSERT_CPE(static_cast<int>(force_data.size()) == Nu*Nv , "Error of size");
 
+    cpe::vec3 dir_wind = cpe::vec3(0.0, 1.0, 0.0);
 
     //Gravity
     static vec3 const g (0.0f,0.0f,-9.81f);
@@ -132,24 +141,29 @@ void mesh_parametric_cloth::update_force()
     
     //Fix forces of the corners to 0
     force(0,0) = vec3(0.0,0.0,0.0);
-    force(0,Nv-1) = vec3(0.0,0.0,0.0);
+    force(Nu-1,0) = vec3(0.0,0.0,0.0);
 
-    float K_structural = 10.0;
+    float K_structural = 20.0;
     float K_shearing = 8.0;
     float K_bending = 8.0f;
+    float K_wind = 0.01f;
 
     for (int ku = 0 ; ku < Nu ; ++ku){
         for (int kv = 0 ; kv < Nv ; ++kv){
-            if (((ku == 0) && (kv == 0)) || ((ku == 0) && (kv == Nv-1))){
+            if (((ku == 0) && (kv == 0)) || ((kv == 0) && (ku == Nu-1))){
                 continue;
             }
             force(ku,kv) += getStructuralForce(ku, kv, Nu, Nv, K_structural);
             force(ku,kv) += getShearingForce(ku, kv, Nu, Nv, K_structural);
             force(ku,kv) += getBendingForce(ku, kv, Nu, Nv, K_bending);
+            
+            force(ku, kv) += getWindForce(normal(ku,kv), K_wind, dir_wind);
 
         }
     }
 
+    collisionPlan(2, -1.1);
+    collisionSphere(0.198f , {0.5f,0.05f,-1.1f});
     
 
     //*************************************************************//
@@ -168,9 +182,9 @@ void mesh_parametric_cloth::integration_step(float const dt)
     //*************************************************************//
     // TO DO: Calculer l'integration numerique des positions au cours de l'intervalle de temps dt.
     //*************************************************************//
-    
+    float damping = 0.2;
     for (int i = 0; i < Nu*Nv; i++){
-        speed_data[i] += dt*force_data[i];
+        speed_data[i] = (1-damping * dt) * speed_data[i] + dt*force_data[i];
         vertex_data[i] += dt*speed_data[i];
     }
 
@@ -267,10 +281,14 @@ void mesh_parametric_cloth::collisionPlan(int axis, float limit){
     int const N_total = Nu*Nv;
 
     for (int k = 0; k < N_total ; k++){
-        if (vertex_data[k][axis] < limit){
-            vertex_data[k][axis] = limit+0.01;
-            force_data[k][axis] = 0;
-            speed_data[k][axis] = 0;
+        if (vertex_data[k][axis] < limit + 0.02){
+            // vertex_data[k][axis] = limit+0.02;
+            if (force_data[k][axis] < 0){
+                force_data[k][axis] = 0;
+            }
+            if (speed_data[k][axis] < 0){
+                speed_data[k][axis] = 0;
+            }
         }
     }
 
@@ -285,12 +303,26 @@ void mesh_parametric_cloth::collisionSphere(float radius, vec3 center){
     for (int k = 0; k < N_total ; k++){
         vec3 vectorDir = vertex_data[k]-center;
         float value = norm(vectorDir);
-        if ( value < radius){
-            vertex_data[k] = (radius+0.01) * ( vectorDir/value) + center ;
-            // force_data[k] = 0;
-            // speed_data[k] = 0;
+
+        if ( value < radius + 0.01){
+            vectorDir /= value;
+            float projF = dot(force_data[k], vectorDir);
+            vec3 revF = projF * vectorDir;
+            if (projF < 0)
+            {
+                force_data[k] -= revF;
+            }
+
+            projF = dot(speed_data[k], vectorDir);
+            revF = projF * vectorDir;
+            if (projF < 0)
+            {
+                speed_data[k] -= revF;
+            }
+
         }
     }
+
 
 }
 
