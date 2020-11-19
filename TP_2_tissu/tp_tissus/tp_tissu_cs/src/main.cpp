@@ -145,7 +145,7 @@ void set_uniform_mvp(GLuint program)
 
 static void display_callback()
 {
-  glUseProgram(program_force_id);
+  glUseProgram(program_force_id); CHECK_GL_ERROR();
   glBindBufferBase(GL_SHADER_STORAGE_BUFFER, 1, buffers[0]);
   glBindBufferBase(GL_SHADER_STORAGE_BUFFER, 2, buffers[1]);
   glBindBufferBase(GL_SHADER_STORAGE_BUFFER, 3, buffers[2]);
@@ -153,7 +153,7 @@ static void display_callback()
   glDispatchCompute(N, N, 1);
   glMemoryBarrier(GL_SHADER_STORAGE_BARRIER_BIT);
 
-  glUseProgram(program_integration_id);
+  glUseProgram(program_integration_id); CHECK_GL_ERROR();
   glBindBufferBase(GL_SHADER_STORAGE_BUFFER, 1, buffers[0]);
   glBindBufferBase(GL_SHADER_STORAGE_BUFFER, 2, buffers[1]);
   glBindBufferBase(GL_SHADER_STORAGE_BUFFER, 3, buffers[2]);
