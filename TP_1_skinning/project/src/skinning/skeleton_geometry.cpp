@@ -165,13 +165,16 @@ skeleton_geometry local_to_global(skeleton_geometry const& sk_local,skeleton_par
     for (int j = 0; j < N ; j++){
         int parent = parent_id[j];
         if (parent != -1){
-
+            //Calcul de la translation du joint j dans le repère global : G(t_j) = G(q_parent)*L(t_j) + G(t_parent)
             vec3 tj = sk_global[parent].orientation * sk_local[j].position + sk_global[parent].position;
+            //Calcul du quaternion du joint j dans le repère global : G(q_j) = G(q_parent)*L(q_j)
             cpe::quaternion qj = sk_global[parent].orientation * sk_local[j].orientation;
 
+            //Ajout des caractéristiques dans le squelette
             sk_global.push_back(cpe::skeleton_joint(tj, qj));            
 
         } else {
+            //Cas où le joint est le joint de référence, les coordonnées sont déjà globales
             sk_global.push_back(cpe::skeleton_joint(sk_local[j].position, sk_local[j].orientation));
         }
 
@@ -190,7 +193,12 @@ skeleton_geometry inversed(skeleton_geometry const& skeleton)
     for(skeleton_joint const& joint : skeleton)
     {
         //TO DO: calculer l'inverse de chaque repere
-        sk_inversed.push_back(skeleton_joint(-1*(conjugated(joint.orientation) * joint.position), conjugated(joint.orientation)));
+        //Calcul du quaternion conjugué : q^-1 = q_bar
+        quaternion q = conjugated(joint.orientation);
+        //Calcul de la translation inverse du joint : t^-1 = - ( q^-1 * t)
+        vec3 t = -1*(conjugated(joint.orientation) * joint.position);
+        //Ajout du joint au squelette
+        sk_inversed.push_back(skeleton_joint(t, q));
     }
 
     return sk_inversed;
@@ -205,9 +213,11 @@ skeleton_geometry multiply(skeleton_geometry const& skeleton_1,skeleton_geometry
     for(int k=0 ; k<N_joint ; ++k)
     {
         //TO DO: calculer le produit pour chaque joint entre celui du squelette 1 et celui du squelette 2
+        //Calcul de la translation du joint j1 avec j2 : t_12 = q_1 * t_2 + t_1
         vec3 t = skeleton_1[k].orientation * skeleton_2[k].position + skeleton_1[k].position;
+        //Calcul du quaternion du joint j1 avec j2 : q_12 = q_1 * q_2
         cpe::quaternion q = skeleton_1[k].orientation * skeleton_2[k].orientation;
-
+        //Ajout du joint au squelette
         sk.push_back(cpe::skeleton_joint(t, q));
 
     }
@@ -226,7 +236,9 @@ std::vector<vec3> extract_bones(skeleton_geometry const& skeleton,skeleton_paren
         int const parent = parent_id[k];
 
         //TO DO: completez la structure position avec la position des extermitees des os.
+        //Ajout de la position du parent
         positions.push_back(skeleton[parent].position);
+        //Ajout de la position courante
         positions.push_back(skeleton[k].position);
 
     }
@@ -247,10 +259,11 @@ skeleton_geometry interpolated(skeleton_geometry const& skeleton_1,skeleton_geom
         skeleton_joint const& joint_1 = skeleton_1[k];
         skeleton_joint const& joint_2 = skeleton_2[k];
         //TO DO: completez la methode d'interpolation entre les reperes des joints du squelette 1 et du squelette 2
-
+        //Interpolation des translations
         vec3 t = joint_1.position * (1-alpha) + joint_2.position * alpha;
+        //Interpolation des quaternions par la méthode SLERP
         cpe::quaternion q = slerp(joint_1.orientation, joint_2.orientation, alpha);
-
+        //Ajout du joint résultant au squelette
         sk.push_back(skeleton_joint(t,q));
 
 
