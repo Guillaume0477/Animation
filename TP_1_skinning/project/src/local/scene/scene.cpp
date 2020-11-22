@@ -235,8 +235,7 @@ void scene::draw_scene()
 {
     setup_shader_skeleton(shader_skeleton);
 
-    //Increase the movement of the monster
-    
+    //Increase the movement of the monster //USER
     move += order_monster * vec3(1, 0.0, 0.0) * time2.elapsed()/50;
 
     //Get the frame of the monster to display according to the elapsed time
