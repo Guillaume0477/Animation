@@ -72,7 +72,7 @@ static cpe::mesh_skinned build_cylinder(float const R,float const H, int const n
             // }
             // vwp[0] = sw;
 
-            //Use a linear weight   //USER
+            // Use a linear weight   //USER
             sw.joint_id = 0;
             sw.weight = 1 - h/H;
             swbis.joint_id = 1;
@@ -193,25 +193,33 @@ void scene::load_scene()
     mesh_cylinder = build_cylinder(radius, length, 40,40);
     mesh_cylinder.fill_empty_field_by_default();
     mesh_cylinder_opengl.fill_vbo(mesh_cylinder);
-
+    //Init the skeletons
+    Init_cylinder_skeleton(sk_cylinder_parent_id, sk_cylinder_bind_pose , length) ;
 
     //*****************************************//
     // Build monster
     //*****************************************//
     mesh_monster.load("data/Monster.obj");
-    // // Modification of the color of the monster depending on the vertex_weights  //USER
+    //Init the skeleton    
+    Init_monster_skeleton(sk_monster_parent_id, sk_monster_bind_pose) ;
+
+    // Modification of the color of the monster depending on the vertex_weights  //USER
     // for (int k = 0; k < mesh_monster.size_vertex_weight() ; k++){
-    //     vec3 colorToUse = vec3(mesh_monster.vertex_weight(k)[0].weight, mesh_monster.vertex_weight(k)[1].weight, mesh_monster.vertex_weight(k)[3].weight);
+    //     int unique = 0;
+    //     if (mesh_monster.vertex_weight(k)[1].joint_id == 0){
+    //         unique = 1;
+    //     }
+
+    //     vec3 colorToUse = vec3((1.0-unique) * mesh_monster.vertex_weight(k)[0].weight, (1.0-unique) * mesh_monster.vertex_weight(k)[1].weight, unique * mesh_monster.vertex_weight(k)[0].weight);
+    //     // std::cout << mesh_monster.vertex_weight(k)[0].joint_id << " " << mesh_monster.vertex_weight(k)[1].joint_id << std::endl;
     //     mesh_monster.add_color(colorToUse);
     // }
+
     mesh_monster.fill_empty_field_by_default();
     mesh_monster_opengl.fill_vbo(mesh_monster);
     
 
-    //Init the skeletons
-    Init_cylinder_skeleton(sk_cylinder_parent_id, sk_cylinder_bind_pose , length) ;
-    Init_monster_skeleton(sk_monster_parent_id, sk_monster_bind_pose) ;
-
+    
     //Initialize the animations frames of the squeletons
     Init_cylinder_animation(sk_cylinder_parent_id, sk_cylinder_bind_pose, sk_cylinder_animation, length);
     Init_monster_animation(sk_monster_parent_id, sk_monster_bind_pose, sk_monster_animation);
@@ -227,10 +235,10 @@ void scene::draw_scene()
 {
     setup_shader_skeleton(shader_skeleton);
 
-    //Increase the movement of the monster
+    //Increase the movement of the monster      //USER
     move += order_monster * vec3(1, 0.0, 0.0);
     //Get the frame of the monster to display according to the elapsed time
-    if (time.elapsed()>25){
+    if (time.elapsed()>50){
         //Update the index of the monster keyframe
         index_monster = next_monster;
         //Check if there are more keyframe and update the next keyframe
@@ -255,7 +263,7 @@ void scene::draw_scene()
         }
     }
     //Get the frame of the cylinder to display according to the elapsed time
-    if (time.elapsed() > 200){
+    if (time.elapsed() > 2000){
         //Update the index of the cylinder keyframe
         index = next;
         //Check if there are more keyframe and update the next keyframe
@@ -281,26 +289,26 @@ void scene::draw_scene()
     }
 
     //Get the interpolation parameter to get a smooth change between keyframes
-    float alpha_monster = float(time.elapsed()) / 25.0;
-    float alpha = float(time.elapsed())/200.0;
+    float alpha_monster = float(time.elapsed()) / 2000.0;
+    float alpha = float(time.elapsed())/50.0;
     //Here we can draw skeletons as 3D segments
 
     //Interpolation of the frames according to the time     //USER
     skeleton_geometry sk_toUse = interpolated(sk_cylinder_animation[index], sk_cylinder_animation[next], alpha);  // sk_cylinder_animation[index]; //
-    skeleton_geometry sk_toUse_monster =  interpolated(sk_monster_animation[index_monster], sk_monster_animation[next_monster], alpha_monster); //sk_monster_animation(index_monster,alpha); //
+    skeleton_geometry sk_toUse_monster =  interpolated(sk_monster_animation[index_monster], sk_monster_animation[next_monster], alpha_monster); //sk_monster_animation[index_monster]; //
     
-    //Move the monster      //USER
-    sk_toUse_monster[0].position += move - vec3(100.0, 0.0, 0.0);
+    //Move the monster
+    sk_toUse_monster[0].position += move - vec3(75.0, 0.0, 0.0);
     
-    //Get the position of the skeleton of the cylinder in global coordinates and draw it    //USER
+    //Get the position of the skeleton of the cylinder in global coordinates and draw it
     skeleton_geometry const sk_cylinder_global = local_to_global(sk_toUse,sk_cylinder_parent_id);
     std::vector<vec3> const sk_cylinder_bones = extract_bones(sk_cylinder_global,sk_cylinder_parent_id);
-    draw_skeleton(sk_cylinder_bones);
+    draw_skeleton(sk_cylinder_bones);        //Draw the skeleton of the cylinder    //USER 
 
-    //Get the position of the skeleton of the monster in global coordinates and draw it     //USER
+    //Get the position of the skeleton of the monster in global coordinates and draw it   
     skeleton_geometry const sk_monster_global = local_to_global(sk_toUse_monster,sk_monster_parent_id);
     std::vector<vec3> const sk_monster_bones = extract_bones(sk_monster_global,sk_monster_parent_id);
-    draw_skeleton(sk_monster_bones);
+    draw_skeleton(sk_monster_bones);        //Draw the skeleton of the monster  //USER
 
 
 
@@ -312,7 +320,7 @@ void scene::draw_scene()
     //Prepare the skinning
     skeleton_geometry const sk_cylinder_inverse_bind_pose = inversed(sk_cylinder_bind_pose);
     skeleton_geometry const sk_cylinder_binded = multiply(sk_cylinder_global,sk_cylinder_inverse_bind_pose);
-    //Apply the skinning on the cylinder    //USER
+    //Apply the skinning on the cylinder 
     mesh_cylinder.apply_skinning(sk_cylinder_binded);
     mesh_cylinder.fill_normal();
     mesh_cylinder_opengl.update_vbo_vertex(mesh_cylinder);
@@ -323,7 +331,7 @@ void scene::draw_scene()
     //Prepare the skinning
     skeleton_geometry const sk_monster_inverse_bind_pose = inversed(local_to_global(sk_monster_bind_pose, sk_monster_parent_id));
     skeleton_geometry const sk_monster_binded = multiply(sk_monster_global,sk_monster_inverse_bind_pose);
-    //Apply the skinning on the monster     //USER
+    //Apply the skinning on the monster    
     mesh_monster.apply_skinning(sk_monster_binded);
     mesh_monster.fill_normal();
     mesh_monster_opengl.update_vbo_vertex(mesh_monster);
