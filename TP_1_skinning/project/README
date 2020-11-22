@@ -1,1 +1,24 @@
-Ajouter ici le dossier 'extern' contenant le dossier glew.
+AUTHORS : Antoine BRALET et Guilaume DURET
+SUBJECT : Création de squelette et application du skinning sur des formes simples puis complexes
+
+Ce code permet de visualiser les travaux menés lors du TP de skinning du module ANimation et Simulation. L'idée est de mettre en place une méthode permettant à partir d'un squelette de faire mouvoir un ensemble de sommets d'un objet simple ou complexe. Ce code permet de visualiser les différentes étapes de construction de la méthode. Plusieurs modifications peuvent être apportées afin que l'utilisateur puisse visualiser ces étapes découpées. Ces modifications sont faciles à retrouver dans le code grâce à un tag "//USER" permettant de retrouver rapidement les lignes à commenter/décommenter en fonction des volontées d'affichage de l'utilisateur.
+
+Le code en tant que tel affiche : 
+-   Un cylindre en mouvement fluide
+-   Un monstre en mouvement fluide et en déplacement
+
+Modifications possibles : la mention "c/d" signifie "commenter/décommenter respectivement à l'action souhaitée"
+
+    *   Affichage/masquage du cylindre :                            c/d ligne 329
+    *   Affichage/masquage du squelette du cylindre :               c/d ligne 306
+    *   Poids de skinning stricts/linéaires du cylindre :           c/d lignes 65-73 ou lignes 75-81
+    *   Mouvement saccadé / fluide de l'animation du cylindre :     modifier la ligne 297 avec le commentaire situé sur la même ligne
+
+    *   Affichage/masquage du monstre :                             c/d ligne 341
+    *   Affichage/masquage du squelette du monstre :                c/d ligne 311
+    *   Affichage/masquage des poids du monstre :                   c/d lignes 207-216
+    *   Mouvement/stagnation du monstre :                           c/d ligne 239
+    *   Mouvement saccadé / fluide de l'animation du monstre :      modifier la ligne 298 avec le commentaire situé sur la même ligne
+
+Pour toute question ou remarque quant au fonctionnement, n'hésitez pas à nous contacter par mail : 
+antoine.bralet@cpe.fr et/ou guillaume.duret@cpe.fr
