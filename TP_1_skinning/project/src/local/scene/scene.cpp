@@ -217,8 +217,8 @@ void scene::load_scene()
     Init_monster_animation(sk_monster_parent_id, sk_monster_bind_pose, sk_monster_animation);
 
 
-
     time.start();
+    time2.start();
 }
 
 
@@ -228,21 +228,21 @@ void scene::draw_scene()
     setup_shader_skeleton(shader_skeleton);
 
     //Increase the movement of the monster
-    move += order_monster * vec3(1, 0.0, 0.0);
+    
+    move += order_monster * vec3(1, 0.0, 0.0) * time2.elapsed()/200;
+
     //Get the frame of the monster to display according to the elapsed time
-    if (time.elapsed()>25){
+    if (time2.elapsed()>=100){
         //Update the index of the monster keyframe
         index_monster = next_monster;
         //Check if there are more keyframe and update the next keyframe
         if ((order_monster > 0) && (next_monster + 1 < sk_monster_animation.size()-1)){
             next_monster +=1;
-
         }
         //Check if there are no more next keyframe then get the previous keyframe 
-        else if ((order > 0) && (next_monster + 1 >= sk_monster_animation.size()-1)){
+        else if ((order_monster > 0) && (next_monster + 1 >= sk_monster_animation.size()-1)){
             order_monster *= -1;
             next_monster -= 1;
-
         } 
         //Check if there are more previous keyframes
         else if ((order_monster < 0) && (next_monster - 1 >= 0)){
@@ -253,6 +253,7 @@ void scene::draw_scene()
             order_monster *= -1;
             next_monster +=1;
         }
+        time2.restart();
     }
     //Get the frame of the cylinder to display according to the elapsed time
     if (time.elapsed() > 200){
@@ -281,7 +282,7 @@ void scene::draw_scene()
     }
 
     //Get the interpolation parameter to get a smooth change between keyframes
-    float alpha_monster = float(time.elapsed()) / 25.0;
+    float alpha_monster = float(time2.elapsed()) / 100.0;
     float alpha = float(time.elapsed())/200.0;
     //Here we can draw skeletons as 3D segments
 
