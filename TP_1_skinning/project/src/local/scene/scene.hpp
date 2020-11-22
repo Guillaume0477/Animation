@@ -100,6 +100,7 @@ private:
     int order = 1;
     int index = 0;
     int next = 1;
+    QTime time2;
     int order_monster = 1;
     int index_monster = 0;
     int next_monster = 1;
