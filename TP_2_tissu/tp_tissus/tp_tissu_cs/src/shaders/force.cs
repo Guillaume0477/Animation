@@ -124,12 +124,38 @@ vec4 getShearingForce(in uvec2 p, in float K_shearing){
 }
 
 
-vec4 getWindForce(uvec2 p, vec3 normalVec, float K, vec3 u){
+vec4 getWindForce(uvec2 p, float K, vec3 u){
+
+
+     //Structural forces
+    int ku = int(p.x);
+    int kv = int(p.y);
+    vec4 F= vec4(0.0,0.0,0.0,0.0);
+    vec3 normalVec = vec3(0.0, 0.0, 0.0);
+    
+    vec4 p0 = pos[xy2i(uvec2(ku,kv))];
+    vec4 p1 = vec4(0.0, 0.0, 0.0, 0.0);
+    vec4 p2 = vec4(0.0, 0.0, 0.0, 0.0);
+    
+    if (ku + 1 < N) {
+        p1 = pos[xy2i(uvec2(ku+1, kv))];
+    } else {
+        p1 = pos[xy2i(uvec2(ku-1,kv))];
+    }
+
+    if (kv + 1 < N) {
+        p2 = pos[xy2i(uvec2(ku, kv+1))];
+    } else {
+        p2 = pos[xy2i(uvec2(ku,kv-1))];
+    }
+
+    normalVec = normalize(cross(vec3(p1-p0),vec3(p2-p0)));
+
     float cosTheta = dot(normalVec, u);
     // std::cout << cosTheta << std::endl;
-    vec3 f = K*cosTheta*normalVec;
+    F = vec4(K*cosTheta*normalVec,0.0f);
     // std::cout << f << std::endl;
-    return f;
+    return F;
 }
 
 
@@ -146,6 +172,7 @@ void main() {
     float K_shearing = 8.0f;
     float K_bending = 8.0f;
     float K_wind = 0.01f;
+    vec3 u = vec3(1.0, 0.0, 0.0);
 
     if (id == xy2i(uvec2(0,0)) || (id == xy2i(uvec2(N-1,0)))) {
         force[id] = vec4(0.0,0.0,0.0,0.0);
@@ -156,6 +183,7 @@ void main() {
         force[id] += getBendingForce(id_2d,K_bending);
         force[id] += getShearingForce(id_2d,K_shearing);
 
+        force[id] += getWindForce(id_2d, K_wind, u);
     }
 
     //
