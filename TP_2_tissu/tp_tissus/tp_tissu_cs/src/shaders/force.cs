@@ -168,13 +168,13 @@ void main() {
     // TO DO, Calculer les forces s'appliquant sur chaque sommet
     //*************************************************************//
     //
-    float K_structural = 20.0f;
+    float K_structural = 40.0f;
     float K_shearing = 8.0f;
     float K_bending = 8.0f;
-    float K_wind = 0.01f;
-    vec3 u = vec3(1.0, 0.0, 0.0);
+    float K_wind = 0.1f;
+    vec3 u = vec3(1.0, 1.0, 0.0);
 
-    if (id == xy2i(uvec2(0,0)) || (id == xy2i(uvec2(N-1,0)))) {
+    if (id == xy2i(uvec2(0,0)) || (id == xy2i(uvec2(N-1,0))) ){
         force[id] = vec4(0.0,0.0,0.0,0.0);
     }
     else{
