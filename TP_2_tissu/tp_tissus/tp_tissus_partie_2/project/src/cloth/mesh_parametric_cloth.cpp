@@ -39,17 +39,18 @@ cpe::vec3 mesh_parametric_cloth::getStructuralForce(int ku, int kv, int const Nu
     //Structural forces
     cpe::vec3 Fright, Fleft, Ftop, Fbottom = cpe::vec3(0.0,0.0,0.0);
     cpe::vec3 curVec = vertex(ku,kv);
+    //Longueur à vide du ressort
     float L_structural = 1.0/Nu;
-    if (ku + 1 < Nu){
+    if (ku + 1 < Nu){   //Vérification du voisin de droite
         Fright = getElasticForce(curVec, vertex(ku+1,kv), K_structural, L_structural);
     }
-    if (ku - 1 >= 0){
+    if (ku - 1 >= 0){   //Vérification du voisin de gauche
         Fleft = getElasticForce(curVec, vertex(ku-1, kv), K_structural, L_structural);
     }
-    if (kv + 1 < Nv){
+    if (kv + 1 < Nv){   //Vérification du voisin du bas
         Fbottom = getElasticForce(curVec, vertex(ku, kv+1), K_structural, L_structural);
     }
-    if (kv - 1 >= 0){
+    if (kv - 1 >= 0){   //Vérification du voisin du haut
         Ftop = getElasticForce(curVec, vertex(ku, kv-1), K_structural, L_structural);
     }
     
@@ -62,17 +63,18 @@ cpe::vec3 mesh_parametric_cloth::getBendingForce(int ku, int kv, int const Nu, i
     //Structural forces
     cpe::vec3 Fright, Fleft, Ftop, Fbottom = cpe::vec3(0.0,0.0,0.0);
     cpe::vec3 curVec = vertex(ku,kv);
+    //Longueur à vide du ressort
     float L_Bending = 2.0/Nu;
-    if (ku + 2 < Nu){
+    if (ku + 2 < Nu){   //Vérification du voisin éloigné de droite
         Fright = getElasticForce(curVec, vertex(ku+2,kv), K_bend, L_Bending);
     }
-    if (ku - 2 >= 0){
+    if (ku - 2 >= 0){   //Vérification du voisin éloigné de gauche
         Fleft = getElasticForce(curVec, vertex(ku-2, kv), K_bend, L_Bending);
     }
-    if (kv + 2 < Nv){
+    if (kv + 2 < Nv){   //Vérification du voisin éloigné du bas
         Fbottom = getElasticForce(curVec, vertex(ku, kv+2), K_bend, L_Bending);
     }
-    if (kv - 2 >= 0){
+    if (kv - 2 >= 0){   //Vérification du voisin éloigné du haut
         Ftop = getElasticForce(curVec, vertex(ku, kv-2), K_bend, L_Bending);
     }
     
@@ -86,17 +88,19 @@ cpe::vec3 mesh_parametric_cloth::getShearingForce(int ku, int kv, int const Nu, 
     //Structural forces
     cpe::vec3 Ftopright, FbottomLeft, FtopLeft, FbottomRight = cpe::vec3(0.0,0.0,0.0);
     cpe::vec3 curVec = vertex(ku,kv);
+    //Longueur à vide du ressort
     float L_Shear = float(sqrt(2))/Nu;
-    if ((ku + 1 < Nu) && (kv + 1 < Nv)) {
+
+    if ((ku + 1 < Nu) && (kv + 1 < Nv)) {   //Vérification du voisin diagonal bas droit
         Ftopright = getElasticForce(curVec, vertex(ku+1,kv+1), K_shearing, L_Shear);
     }
-    if ((ku - 1 >= 0) && (kv - 1 >= 0)){
+    if ((ku - 1 >= 0) && (kv - 1 >= 0)){    //Vérification du voisin diagonal haut gauche
         FbottomLeft = getElasticForce(curVec, vertex(ku-1, kv-1), K_shearing, L_Shear);
     }
-    if ((ku - 1 >= 0) && (kv + 1 < Nv)){
+    if ((ku - 1 >= 0) && (kv + 1 < Nv)){    //Vérification du voisin diagonal bas gauche
         FtopLeft = getElasticForce(curVec, vertex(ku-1, kv+1), K_shearing, L_Shear);
     }
-    if ((ku + 1 < Nu) && (kv - 1 >= 0)){
+    if ((ku + 1 < Nu) && (kv - 1 >= 0)){    //Vérification du voisin diagonal haut droit
         FbottomRight = getElasticForce(curVec, vertex(ku+1, kv-1), K_shearing, L_Shear);
     }
     
@@ -106,10 +110,11 @@ cpe::vec3 mesh_parametric_cloth::getShearingForce(int ku, int kv, int const Nu, 
 
 
 cpe::vec3 getWindForce(cpe::vec3 normalVec, float K, cpe::vec3 u){
+    //Calcul du cosinus de l'angle entre la normale au point et la direction du vent
     float cosTheta = dot(normalVec, u);
-    // std::cout << cosTheta << std::endl;
+    //Calcul de la force du vent appliquée sur le point
     cpe::vec3 f = K*cosTheta*normalVec;
-    // std::cout << f << std::endl;
+
     return f;
 }
 
@@ -122,6 +127,7 @@ void mesh_parametric_cloth::update_force()
     int const N_total = Nu*Nv;
     ASSERT_CPE(static_cast<int>(force_data.size()) == Nu*Nv , "Error of size");
 
+    //Direction initiale du vent
     cpe::vec3 dir_wind = cpe::vec3(0.0, 1.0, 0.0);
 
     //Gravity
@@ -138,32 +144,41 @@ void mesh_parametric_cloth::update_force()
     //*************************************************************//
     // TO DO, Calculer les forces s'appliquant sur chaque sommet
     //*************************************************************//
-    
-    //Fix forces of the corners to 0
-    force(0,0) = vec3(0.0,0.0,0.0);
-    force(Nu-1,0) = vec3(0.0,0.0,0.0);
 
-    float K_structural = 20.0;
+    //USER
+    //Constantes de raideur des différents ressorts
+    float K_structural = 50.0;
     float K_shearing = 8.0;
     float K_bending = 8.0f;
-    float K_wind = 0.01f;
+
+    //Force du vent
+    float K_wind = 0.1f;
 
     for (int ku = 0 ; ku < Nu ; ++ku){
         for (int kv = 0 ; kv < Nv ; ++kv){
-            if (((ku == 0) && (kv == 0)) || ((kv == 0) && (ku == Nu-1))){
-                continue;
-            }
-            force(ku,kv) += getStructuralForce(ku, kv, Nu, Nv, K_structural);
-            force(ku,kv) += getShearingForce(ku, kv, Nu, Nv, K_structural);
-            force(ku,kv) += getBendingForce(ku, kv, Nu, Nv, K_bending);
             
+            //USER
+            //Calcul des forces de ressort appliquées sur chaque oint en fonction de ses voisins
+            force(ku,kv) += getStructuralForce(ku, kv, Nu, Nv, K_structural);   //Structurel
+            force(ku,kv) += getShearingForce(ku, kv, Nu, Nv, K_structural);     //Shearing
+            force(ku,kv) += getBendingForce(ku, kv, Nu, Nv, K_bending);         //Bending
+            
+            //Calcul de la force de vent
             force(ku, kv) += getWindForce(normal(ku,kv), K_wind, dir_wind);
 
         }
     }
+    //USER
+    //Fix forces of the corners to 0
+    force(0,0) = vec3(0.0,0.0,0.0);
+    force(Nu-1,0) = vec3(0.0,0.0,0.0);
+    // force(0,Nv-1) = vec3(0.0,0.0,0.0);
+    // force(Nu-1,Nv-1) = vec3(0.0,0.0,0.0);
 
-    collisionPlan(2, -1.1);
-    collisionSphere(0.198f , {0.5f,0.05f,-1.1f});
+    //USER
+    //Vérification des possibles collisions et mise à jour des forces en fonction de la collision
+    collisionPlan(2, -1.1);                         //Avec le plan
+    collisionSphere(0.198f , {0.5f,0.05f,-1.1f});   //Avec la sphère
     
 
     //*************************************************************//
@@ -182,9 +197,12 @@ void mesh_parametric_cloth::integration_step(float const dt)
     //*************************************************************//
     // TO DO: Calculer l'integration numerique des positions au cours de l'intervalle de temps dt.
     //*************************************************************//
+    //Coefficient d'amortissement
     float damping = 0.2;
     for (int i = 0; i < Nu*Nv; i++){
+        //Mise à jour de la vitesse
         speed_data[i] = (1-damping * dt) * speed_data[i] + dt*force_data[i];
+        //Mise à jour de la position
         vertex_data[i] += dt*speed_data[i];
     }
 
