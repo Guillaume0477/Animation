@@ -128,7 +128,7 @@ void mesh_parametric_cloth::update_force()
     ASSERT_CPE(static_cast<int>(force_data.size()) == Nu*Nv , "Error of size");
 
     //Direction initiale du vent
-    cpe::vec3 dir_wind = cpe::vec3(0.0, 1.0, 0.0);
+    cpe::vec3 dir_wind = cpe::vec3(0.0, -1.0, 0.0);
 
     //Gravity
     static vec3 const g (0.0f,0.0f,-9.81f);
@@ -147,12 +147,12 @@ void mesh_parametric_cloth::update_force()
 
     //USER
     //Constantes de raideur des différents ressorts
-    float K_structural = 50.0;
+    float K_structural = 40.0;
     float K_shearing = 8.0;
     float K_bending = 8.0f;
 
     //Force du vent
-    float K_wind = 0.1f;
+    float K_wind = 0.015f;
 
     for (int ku = 0 ; ku < Nu ; ++ku){
         for (int kv = 0 ; kv < Nv ; ++kv){
@@ -160,7 +160,7 @@ void mesh_parametric_cloth::update_force()
             //USER
             //Calcul des forces de ressort appliquées sur chaque oint en fonction de ses voisins
             force(ku,kv) += getStructuralForce(ku, kv, Nu, Nv, K_structural);   //Structurel
-            force(ku,kv) += getShearingForce(ku, kv, Nu, Nv, K_structural);     //Shearing
+            force(ku,kv) += getShearingForce(ku, kv, Nu, Nv, K_shearing);     //Shearing
             force(ku,kv) += getBendingForce(ku, kv, Nu, Nv, K_bending);         //Bending
             
             //Calcul de la force de vent
@@ -299,8 +299,8 @@ void mesh_parametric_cloth::collisionPlan(int axis, float limit){
     int const N_total = Nu*Nv;
 
     for (int k = 0; k < N_total ; k++){
-        if (vertex_data[k][axis] < limit + 0.02){
-            // vertex_data[k][axis] = limit+0.02;
+        if (vertex_data[k][axis] < limit + 0.01){
+            vertex_data[k][axis] = limit+0.01;
             if (force_data[k][axis] < 0){
                 force_data[k][axis] = 0;
             }
@@ -324,6 +324,7 @@ void mesh_parametric_cloth::collisionSphere(float radius, vec3 center){
 
         if ( value < radius + 0.01){
             vectorDir /= value;
+            vertex_data[k] = vectorDir*(radius+0.01) + center;
             float projF = dot(force_data[k], vectorDir);
             vec3 revF = projF * vectorDir;
             if (projF < 0)
@@ -340,9 +341,7 @@ void mesh_parametric_cloth::collisionSphere(float radius, vec3 center){
 
         }
     }
-
-
+}
 }
 
-}
 
